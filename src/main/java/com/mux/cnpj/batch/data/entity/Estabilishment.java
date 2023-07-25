@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @Data
 @Entity
+@Table(indexes = { @Index(name = "cnpj_index", columnList = "cnpj", unique = false) })
 public class Estabilishment {
 	
 	@EmbeddedId
