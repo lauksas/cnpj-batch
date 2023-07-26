@@ -1,5 +1,7 @@
 package com.mux.cnpj.batch.job.step;
 
+import static com.mux.cnpj.batch.formatter.CsvFormatter.toInteger;
+
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -20,7 +22,7 @@ public class CnaeImportStepBuilder extends AbstractCNPJStepBuilder<CnaeCsv, Cnae
 			public Cnae process(@NonNull CnaeCsv csv) throws Exception {
 
 				Cnae cnae = Cnae.builder()
-						.id(Integer.parseInt(csv.getCodCNAE_col1_a()))
+						.id(toInteger(csv.getCodCNAE_col1_a()))
 						.description(csv.getDescricao_col2_b())
 						.build();
 
