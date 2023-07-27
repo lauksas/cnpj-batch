@@ -12,8 +12,10 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
+import com.mux.cnpj.batch.data.entity.Cnae;
 import com.mux.cnpj.batch.data.entity.CnpjId;
 import com.mux.cnpj.batch.data.entity.Estabilishment;
+import com.mux.cnpj.batch.data.entity.Municipality;
 import com.mux.cnpj.batch.dto.EstablishmentCsv;
 import com.mux.cnpj.batch.job.step.factory.AbstractCNPJStepBuilder;
 
@@ -49,7 +51,10 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 						.headquartersIndicator(toInteger(csv.getIndMatrizFilialRepetido_colD_4()))
 						.tradeName(nullIfEmpty(csv.getNomeFantasia_colE_5()))
 						.statusId(toInteger(statusId))
-						.mainCnaeFiscal(toInteger(csv.getCnaeFiscalPrincipal_colL_12()))
+						.mainCnaeFiscal(
+								Cnae.builder()
+										.id(toInteger(csv.getCnaeFiscalPrincipal_colL_12()))
+										.build())
 						.fiscalCenae(nullIfEmpty(csv.getCnaeFiscal_colM_13()))
 						.streetType(nullIfEmpty(csv.getTipoLograodouro_colN_14()))
 						.street(nullIfEmpty(csv.getLogradouro_colO_15()))
@@ -58,7 +63,10 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 						.district(nullIfEmpty(csv.getBairro_colR_18()))
 						.zipCode(telToInt(csv.getCep_colS_19()))
 						.stateCode(nullIfEmpty(csv.getUf_colT_20()))
-						.cityCode(toInteger(cityCode))
+						.cityCode(
+								Municipality.builder()
+										.id(toInteger(cityCode))
+										.build())
 						.areaCode1(toInteger(csv.getDdd1_colV_22()))
 						.telephone1(telToInt(csv.getTel1_colW_23()))
 						.areaCode2(telToInt(csv.getDdd2_colV_24()))

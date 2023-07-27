@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class LegalNature {
 	@Id
+	@Column(columnDefinition = "smallint")
 	private Integer id;
 
 	@Column(columnDefinition = "text")

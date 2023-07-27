@@ -20,6 +20,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import com.mux.cnpj.batch.data.entity.Company;
+import com.mux.cnpj.batch.data.entity.LegalNature;
+import com.mux.cnpj.batch.data.entity.Reason;
 import com.mux.cnpj.batch.dto.CompanyCsv;
 import com.mux.cnpj.batch.job.step.factory.AbstractCNPJStepBuilder;
 import com.mux.cnpj.batch.job.writer.JdbcBatchItemWriterCNPJ;
@@ -55,8 +57,14 @@ public class CompaniesImportStepBuilder extends AbstractCNPJStepBuilder<CompanyC
 				Company company = Company.builder()
 						.cnpj(toInteger(csv.getCnpj_col1_A()))
 						.name(csv.getNome_col2_B().trim())
-						.legalNature(toInteger(csv.getCodNaturezaJuridica_col3_C()))
-						.closeDownReason(toInteger(csv.getMotivoSituacaoCadastral_col4_D()))
+						.legalNature(
+								LegalNature.builder()
+										.id(toInteger(csv.getCodNaturezaJuridica_col3_C()))
+										.build())
+						.closeDownReason(
+								Reason.builder()
+										.id(toInteger(csv.getMotivoSituacaoCadastral_col4_D()))
+										.build())
 						.socialCapital(toBigDecimal(csv.getSocialCapital_col5_E()))
 						.companySize(toInteger(csv.getCodPorteEmpresa_col6_F()))
 						.build();
@@ -112,9 +120,9 @@ public class CompaniesImportStepBuilder extends AbstractCNPJStepBuilder<CompanyC
 				Map<String, Object> map = new HashMap<>();
 
 				map.put("cnpj", item.getCnpj());
-				map.put("closeDownReason", item.getCloseDownReason());
+				map.put("closeDownReason", item.getCloseDownReason().getId());
 				map.put("companySize", item.getCompanySize());
-				map.put("legalNature", item.getLegalNature());
+				map.put("legalNature", item.getLegalNature().getId());
 				map.put("name", item.getName());
 				map.put("socialCapital", item.getSocialCapital());
 

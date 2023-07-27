@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.mux.cnpj.batch.data.entity.Company;
+import com.mux.cnpj.batch.data.entity.LegalNature;
+import com.mux.cnpj.batch.data.entity.Reason;
 import com.mux.cnpj.batch.data.repository.CompaniesRepository;
 
 @SpringBootTest
@@ -20,10 +22,9 @@ public class CompaniesRepositoryTest {
 		Company company = Company.builder()
 				.cnpj(41281710)
 				.name("MURILO ELIAS DE SOUZA NETO 09804828790")
-				.legalNature(2135)
-				.closeDownReason(50)
+				.legalNature(LegalNature.builder().build())
+				.closeDownReason(Reason.builder().build())
 				.socialCapital(new BigDecimal("1000,00"))
-				.legalNature(01)
 				.companySize(0)
 				.build();
 		companiesRepository.save(company);

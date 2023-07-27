@@ -6,6 +6,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,9 +34,14 @@ public class Estabilishment {
 	@Column(columnDefinition = "smallint")
 	private Integer statusId;
 
-	@Column(columnDefinition = "int")
-	private Integer mainCnaeFiscal;
+	@ManyToOne
+	@JoinColumn(columnDefinition = "int")
+	private Cnae mainCnaeFiscal;
 
+	/**
+	 * cnae delimited by comma
+	 * might change in future to a proper relation
+	 */
 	@Column(columnDefinition = "text")
 	private String fiscalCenae;
 
@@ -59,8 +66,9 @@ public class Estabilishment {
 	@Column(columnDefinition = "text")
 	private String stateCode;
 
-	@Column(columnDefinition = "smallint")
-	private Integer cityCode;
+	@ManyToOne
+	@JoinColumn(columnDefinition = "smallint")
+	private Municipality cityCode;
 
 	@Column(columnDefinition = "smallint")
 	private Integer areaCode1;
