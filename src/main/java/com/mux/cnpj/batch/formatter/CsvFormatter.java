@@ -72,4 +72,15 @@ public final class CsvFormatter {
 
 		return toInteger(result.replaceAll("-", "").replaceAll(" ", ""));
 	}
+
+	public static Boolean fromString(String val) {
+		Boolean result = null;
+		val = val != null ? val.trim().toUpperCase() : null;
+		if ("S".equals(val)) {
+			result = Boolean.TRUE;
+		} else if ("N".equals(val)) {
+			result = Boolean.FALSE;
+		}
+		return result;
+	}
 }

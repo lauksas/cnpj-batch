@@ -19,6 +19,7 @@ import com.mux.cnpj.batch.job.step.EstabilishmentsImportStepBuilder;
 import com.mux.cnpj.batch.job.step.LegalNatureImportStepBuilder;
 import com.mux.cnpj.batch.job.step.MunicipalityImportStepBuilder;
 import com.mux.cnpj.batch.job.step.ReasonsImportStepBuilder;
+import com.mux.cnpj.batch.job.step.SimpleOptantImportStepBuilder;
 
 @Configuration
 @EnableBatchProcessing(dataSourceRef = "batchDataSource", transactionManagerRef = "batchTransactionManager")
@@ -41,15 +42,17 @@ public class CnpjImportJobConfig {
 			LegalNatureImportStepBuilder legalNatureImportStepBuilder,
 			CnaeImportStepBuilder cnaeStepBuilder,
 			EstabilishmentsImportStepBuilder estabilishmentStepBuilder,
-			CompaniesImportStepBuilder companyStepBuilder) {
+			CompaniesImportStepBuilder companyStepBuilder,
+			SimpleOptantImportStepBuilder simpleOptantImportStepBuilder) {
 
 		Job job = new JobBuilder("cnpjImportJobConfig", jobRepository)
 				.start(cnaeStepBuilder.build())
-				.next(reasonStepBuilder.build())
-				.next(municipalityImportStepBuilder.build())
-				.next(legalNatureImportStepBuilder.build())
-				.next(estabilishmentStepBuilder.build())
-				.next(companyStepBuilder.build())
+				// .next(reasonStepBuilder.build())
+				// .next(municipalityImportStepBuilder.build())
+				// .next(legalNatureImportStepBuilder.build())
+				// .next(estabilishmentStepBuilder.build())
+				// .next(companyStepBuilder.build())
+				.next(simpleOptantImportStepBuilder.build())
 				.incrementer(new RunIdIncrementer())
 				.build();
 		return job;
