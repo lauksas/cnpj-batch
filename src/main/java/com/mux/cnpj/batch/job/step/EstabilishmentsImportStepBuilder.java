@@ -1,5 +1,6 @@
 package com.mux.cnpj.batch.job.step;
 
+import static com.mux.cnpj.batch.formatter.CsvFormatter.fromCsvString;
 import static com.mux.cnpj.batch.formatter.CsvFormatter.intAsText;
 import static com.mux.cnpj.batch.formatter.CsvFormatter.nullIfEmpty;
 import static com.mux.cnpj.batch.formatter.CsvFormatter.telToInt;
@@ -55,7 +56,8 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 								Cnae.builder()
 										.id(toInteger(csv.getCnaeFiscalPrincipal_colL_12()))
 										.build())
-						.fiscalCenae(nullIfEmpty(csv.getCnaeFiscal_colM_13()))
+						.fiscalCenae(fromCsvString(csv
+								.getCnaeFiscal_colM_13()))
 						.streetType(nullIfEmpty(csv.getTipoLograodouro_colN_14()))
 						.street(nullIfEmpty(csv.getLogradouro_colO_15()))
 						.streetNumber(nullIfEmpty(intAsText(csv.getNumero_colP_16())))

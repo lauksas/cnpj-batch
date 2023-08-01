@@ -1,12 +1,14 @@
 package com.mux.cnpj.batch.data.entity;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -21,13 +23,13 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(indexes = { @Index(name = "cnpj_index", columnList = "cnpj", unique = false) })
 public class Estabilishment {
-	
+
 	@EmbeddedId
 	private CnpjId cnpjId;
 
 	@Column(columnDefinition = "smallint")
 	private Integer headquartersIndicator;
-	
+
 	@Column(columnDefinition = "text")
 	private String tradeName;
 
@@ -42,8 +44,8 @@ public class Estabilishment {
 	 * cnae delimited by comma
 	 * might change in future to a proper relation
 	 */
-	@Column(columnDefinition = "text")
-	private String fiscalCenae;
+	@ManyToMany
+	private Set<Cnae> fiscalCenae;
 
 	@Column(columnDefinition = "text")
 	private String streetType;

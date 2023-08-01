@@ -32,16 +32,16 @@ public class CompaniesImportStepBuilder extends AbstractCNPJStepBuilder<CompanyC
 
 	private static final String query = """
 					INSERT INTO cnpj.company
-						(cnpj, close_down_reason, company_size, legal_nature, name, social_capital)
-						select :cnpj, :closeDownReason, :companySize, :legalNature, :name, :socialCapital
+						(cnpj, close_down_reason_id, company_size, legal_nature_id, name, social_capital)
+						select :cnpj, :closeDownReasonId, :companySize, :legalNatureId, :name, :socialCapital
 						where exists
 							(select 1 from cnpj.estabilishment es where es.cnpj=:cnpj limit 1)
 					on conflict (cnpj)
 						do update set
 						cnpj = :cnpj,
-						close_down_reason = :closeDownReason,
+						close_down_reason_id = :closeDownReasonId,
 						company_size = :companySize,
-						legal_nature = :legalNature,
+						legal_nature_id = :legalNatureId,
 						name = :name,
 						social_capital = :socialCapital
 					;
@@ -119,10 +119,12 @@ public class CompaniesImportStepBuilder extends AbstractCNPJStepBuilder<CompanyC
 			public SqlParameterSource createSqlParameterSource(Company item) {
 				Map<String, Object> map = new HashMap<>();
 
+				Integer closeDownReasonId = item.getCloseDownReason() != null ? item.getCloseDownReason().getId() : null;
+
 				map.put("cnpj", item.getCnpj());
-				map.put("closeDownReason", item.getCloseDownReason().getId());
+				map.put("closeDownReasonId", closeDownReasonId);
 				map.put("companySize", item.getCompanySize());
-				map.put("legalNature", item.getLegalNature().getId());
+				map.put("legalNatureId", item.getLegalNature().getId());
 				map.put("name", item.getName());
 				map.put("socialCapital", item.getSocialCapital());
 

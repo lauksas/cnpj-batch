@@ -5,7 +5,7 @@ import java.util.Set;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,13 +16,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @Data
-public class Cnae {
+public class PartnerQualification {
 	@Id
 	private Integer id;
 
 	@Column(columnDefinition = "text")
 	private String description;
 
-	@ManyToMany
-	private Set<Estabilishment> estabilishments;
+	@OneToMany
+	private Set<Company> companies;
 }

@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.mux.cnpj.batch.data.entity.Company;
 import com.mux.cnpj.batch.data.entity.LegalNature;
-import com.mux.cnpj.batch.data.entity.Reason;
 import com.mux.cnpj.batch.data.repository.CompaniesRepository;
 
 @SpringBootTest
@@ -23,7 +22,6 @@ public class CompaniesRepositoryTest {
 				.cnpj(41281710)
 				.name("MURILO ELIAS DE SOUZA NETO 09804828790")
 				.legalNature(LegalNature.builder().build())
-				.closeDownReason(Reason.builder().build())
 				.socialCapital(new BigDecimal("1000,00"))
 				.companySize(0)
 				.build();

@@ -18,11 +18,11 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @Data
 public class Company {
-	
+
 	@Id
 	@Column(columnDefinition = "int")
 	private Integer cnpj;
-	
+
 	@Column(columnDefinition = "text")
 	private String name;
 

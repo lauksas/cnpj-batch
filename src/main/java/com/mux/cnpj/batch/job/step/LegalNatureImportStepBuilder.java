@@ -34,7 +34,7 @@ public class LegalNatureImportStepBuilder extends AbstractCNPJStepBuilder<LegalN
 
 	@Override
 	public String getFilePattern() {
-		return "Motivos.zip";
+		return "Naturezas.zip";
 	}
 
 	@Override
