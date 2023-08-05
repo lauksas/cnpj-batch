@@ -18,10 +18,14 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.mux.cnpj.batch.job.step.CnaeImportStepBuilder;
 import com.mux.cnpj.batch.job.step.CompaniesImportStepBuilder;
+import com.mux.cnpj.batch.job.step.CountryDataFixTasklet;
+import com.mux.cnpj.batch.job.step.CountryImportStepBuilder;
 import com.mux.cnpj.batch.job.step.EstabilishmentsImportStepBuilder;
 import com.mux.cnpj.batch.job.step.LegalNatureImportStepBuilder;
 import com.mux.cnpj.batch.job.step.MunicipalityImportStepBuilder;
+import com.mux.cnpj.batch.job.step.PartnersImportStepBuilder;
 import com.mux.cnpj.batch.job.step.PartnersQualificationsImportStepBuilder;
+import com.mux.cnpj.batch.job.step.PersonTypePopulator;
 import com.mux.cnpj.batch.job.step.ReasonDataFixTasklet;
 import com.mux.cnpj.batch.job.step.ReasonsImportStepBuilder;
 import com.mux.cnpj.batch.job.step.SimpleOptantImportStepBuilder;
@@ -42,6 +46,12 @@ public class CnpjImportJobConfig {
 	@Autowired
 	ReasonDataFixTasklet reasonDataFixTasklet;
 
+	@Autowired
+	CountryDataFixTasklet countryDataFixTasklet;
+
+	@Autowired
+	PersonTypePopulator personTypePopulator;
+
 	@Bean
 	public Job importCnpjJob(
 			JobRepository jobRepository,
@@ -51,12 +61,20 @@ public class CnpjImportJobConfig {
 			LegalNatureImportStepBuilder legalNatureImportStepBuilder,
 			CnaeImportStepBuilder cnaeStepBuilder,
 			PartnersQualificationsImportStepBuilder partnersQualificationsImportStepBuilder,
+			CountryImportStepBuilder countryImportStepBuilder,
 			EstabilishmentsImportStepBuilder estabilishmentStepBuilder,
 			CompaniesImportStepBuilder companyStepBuilder,
-			SimpleOptantImportStepBuilder simpleOptantImportStepBuilder) {
+			SimpleOptantImportStepBuilder simpleOptantImportStepBuilder,
+			PartnersImportStepBuilder partnersImportStepBuilder) {
 
 		Step reasonDataFixStep = new StepBuilder(reasonDataFixTasklet.getClass().getName(), jobRepository)
 				.tasklet(reasonDataFixTasklet, platformTransactionManager).build();
+
+		Step countryDataFixStep = new StepBuilder(countryDataFixTasklet.getClass().getName(), jobRepository)
+				.tasklet(countryDataFixTasklet, platformTransactionManager).build();
+
+		Step personTypePopulatorFixStep = new StepBuilder(personTypePopulator.getClass().getName(), jobRepository)
+				.tasklet(personTypePopulator, platformTransactionManager).build();
 
 		Job job = new JobBuilder("cnpjImportJobConfig", jobRepository)
 				.start(cnaeStepBuilder.build())
@@ -64,10 +82,14 @@ public class CnpjImportJobConfig {
 				.next(municipalityImportStepBuilder.build())
 				.next(legalNatureImportStepBuilder.build())
 				.next(partnersQualificationsImportStepBuilder.build())
+				.next(countryImportStepBuilder.build())
+				.next(personTypePopulatorFixStep)
 				.next(reasonDataFixStep)
+				.next(countryDataFixStep)
 				.next(estabilishmentStepBuilder.build())
 				.next(companyStepBuilder.build())
 				.next(simpleOptantImportStepBuilder.build())
+				.next(partnersImportStepBuilder.build())
 				.incrementer(new RunIdIncrementer())
 				.build();
 		return job;

@@ -1,6 +1,7 @@
 package com.mux.cnpj.batch.job.step;
 
-import java.util.stream.IntStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -10,27 +11,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mux.cnpj.batch.data.entity.Reason;
-import com.mux.cnpj.batch.data.repository.ReasonRepository;
+import com.mux.cnpj.batch.data.entity.PersonType;
+import com.mux.cnpj.batch.data.repository.PersonTypeRepository;
 
 @Component
 @Transactional
-public class ReasonDataFixTasklet implements Tasklet {
+public class PersonTypePopulator implements Tasklet {
 
 	@Autowired
-	private ReasonRepository reasonRepository;
+	private PersonTypeRepository personTypeRepository;
 
 	@Override
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-		Long reasonsCount = reasonRepository.getMaxId();
+		List<PersonType> persons = new ArrayList<>(3);
+		persons.add(PersonType.builder().id(1).description("JURIDICA").build());
+		persons.add(PersonType.builder().id(2).description("FISICA").build());
+		persons.add(PersonType.builder().id(3).description("ESTRANGEIRO").build());
 
-		IntStream.range(0, reasonsCount.intValue()).forEach(id -> {
-			boolean idExists = reasonRepository.existsById(id);
-
-			if (!idExists) {
-				reasonRepository.saveAndFlush(Reason.builder().id(id).description("INDETERMINADO").build());
-			}
-		});
+		personTypeRepository.saveAllAndFlush(persons);
 
 		return RepeatStatus.FINISHED;
 	}

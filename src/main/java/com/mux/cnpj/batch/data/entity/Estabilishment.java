@@ -6,8 +6,10 @@ import java.util.Set;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -21,7 +23,13 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @Data
 @Entity
-@Table(indexes = { @Index(name = "cnpj_index", columnList = "cnpj", unique = false) })
+//@formatter:off
+@Table(
+	indexes = {
+		 @Index(name = "cnpj_index", columnList = "cnpj", unique = false) 
+	}
+)
+//@formatter:on
 public class Estabilishment {
 
 	@EmbeddedId
@@ -37,14 +45,21 @@ public class Estabilishment {
 	private Integer statusId;
 
 	@ManyToOne
-	@JoinColumn(columnDefinition = "int")
+	//@formatter:off
+	@JoinColumn(
+		columnDefinition = "int",
+		 foreignKey = @ForeignKey(name = "estabilishment_main_cnae_fk")
+	)
+	//@formatter:on
 	private Cnae mainCnaeFiscal;
 
-	/**
-	 * cnae delimited by comma
-	 * might change in future to a proper relation
-	 */
 	@ManyToMany
+	//@formatter:off
+	@JoinTable(
+		inverseForeignKey = @ForeignKey(name = "cnae_estabilishment_fk"),
+		foreignKey = @ForeignKey(name = "estabilishment_cnae_composite_fk")
+	)
+	//@formatter:on
 	private Set<Cnae> fiscalCenae;
 
 	@Column(columnDefinition = "text")
@@ -69,7 +84,12 @@ public class Estabilishment {
 	private String stateCode;
 
 	@ManyToOne
-	@JoinColumn(columnDefinition = "smallint")
+	//@formatter:off
+	@JoinColumn(
+		columnDefinition = "smallint",
+		foreignKey = @ForeignKey(name = "estabilishment_municipality_fk")
+	)
+	//@formatter:on
 	private Municipality cityCode;
 
 	@Column(columnDefinition = "smallint")

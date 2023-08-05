@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -27,11 +28,21 @@ public class Company {
 	private String name;
 
 	@ManyToOne
-	@JoinColumn(columnDefinition = "smallint")
+	//@formatter:off
+	@JoinColumn(
+		columnDefinition = "smallint",
+		 foreignKey = @ForeignKey(name = "company_legal_nature_fk")
+	)
+	//@formatter:on
 	private LegalNature legalNature;
 
 	@ManyToOne
-	@JoinColumn(columnDefinition = "smallint")
+	//@formatter:off
+	@JoinColumn(
+		columnDefinition = "smallint",
+		 foreignKey = @ForeignKey(name = "company_reason_fk")
+	)
+	//@formatter:off
 	private Reason closeDownReason;
 
 	@Column(columnDefinition = "bigint")

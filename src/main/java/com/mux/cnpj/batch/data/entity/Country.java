@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @Data
-public class Cnae {
+public class Country {
 	@Id
+	@Column(columnDefinition = "smallint")
 	private Integer id;
 
 	@Column(columnDefinition = "text")
-	private String description;
-
+	private String name;
 }
