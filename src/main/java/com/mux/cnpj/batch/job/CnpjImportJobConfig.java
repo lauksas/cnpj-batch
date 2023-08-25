@@ -2,11 +2,17 @@ package com.mux.cnpj.batch.job;
 
 import javax.sql.DataSource;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.job.flow.FlowExecutionStatus;
+import org.springframework.batch.core.job.flow.JobExecutionDecider;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +26,7 @@ import com.mux.cnpj.batch.job.step.CnaeImportStepBuilder;
 import com.mux.cnpj.batch.job.step.CompaniesImportStepBuilder;
 import com.mux.cnpj.batch.job.step.CountryDataFixTasklet;
 import com.mux.cnpj.batch.job.step.CountryImportStepBuilder;
+import com.mux.cnpj.batch.job.step.DownloadFilesTasklet;
 import com.mux.cnpj.batch.job.step.EstabilishmentsImportStepBuilder;
 import com.mux.cnpj.batch.job.step.LegalNatureImportStepBuilder;
 import com.mux.cnpj.batch.job.step.MunicipalityImportStepBuilder;
@@ -52,6 +59,9 @@ public class CnpjImportJobConfig {
 	@Autowired
 	PersonTypePopulator personTypePopulator;
 
+	@Autowired
+	DownloadFilesTasklet downloadFilesTasklet;
+
 	@Bean
 	public Job importCnpjJob(
 			JobRepository jobRepository,
@@ -67,6 +77,9 @@ public class CnpjImportJobConfig {
 			SimpleOptantImportStepBuilder simpleOptantImportStepBuilder,
 			PartnersImportStepBuilder partnersImportStepBuilder) {
 
+		Step downloadFilesStep = new StepBuilder(downloadFilesTasklet.getClass().getName(), jobRepository)
+				.tasklet(downloadFilesTasklet, platformTransactionManager).build();
+
 		Step reasonDataFixStep = new StepBuilder(reasonDataFixTasklet.getClass().getName(), jobRepository)
 				.tasklet(reasonDataFixTasklet, platformTransactionManager).build();
 
@@ -76,8 +89,8 @@ public class CnpjImportJobConfig {
 		Step personTypePopulatorFixStep = new StepBuilder(personTypePopulator.getClass().getName(), jobRepository)
 				.tasklet(personTypePopulator, platformTransactionManager).build();
 
-		Job job = new JobBuilder("cnpjImportJobConfig", jobRepository)
-				.start(cnaeStepBuilder.build())
+		Flow processFilesFLow = new FlowBuilder<Flow>("processFilesFlow")
+				.from(cnaeStepBuilder.build())
 				.next(reasonStepBuilder.build())
 				.next(municipalityImportStepBuilder.build())
 				.next(legalNatureImportStepBuilder.build())
@@ -90,7 +103,24 @@ public class CnpjImportJobConfig {
 				.next(companyStepBuilder.build())
 				.next(simpleOptantImportStepBuilder.build())
 				.next(partnersImportStepBuilder.build())
-				.incrementer(new RunIdIncrementer())
+				.build();
+
+		Job job = new JobBuilder("cnpjImportJobConfig", jobRepository)
+				.start(downloadFilesStep)
+				.on("*")
+				.to(new JobExecutionDecider() {
+					@Override
+					public FlowExecutionStatus decide(JobExecution jobExecution, StepExecution stepExecution) {
+						if (stepExecution.getExitStatus().equals(ExitStatus.STOPPED)) {
+							return FlowExecutionStatus.COMPLETED;
+						} else
+							return new FlowExecutionStatus("PROCESS_FILES");
+					}
+				})
+				.on(FlowExecutionStatus.COMPLETED.toString()).stop()
+				.on("PROCESS_FILES")
+				.to(processFilesFLow)
+				.end()
 				.build();
 		return job;
 	}

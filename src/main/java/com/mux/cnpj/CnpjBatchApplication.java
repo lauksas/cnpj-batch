@@ -1,6 +1,6 @@
 package com.mux.cnpj;
 
-import java.time.LocalDateTime;
+import java.io.IOException;
 import java.util.HashMap;
 
 import org.springframework.batch.core.Job;
@@ -17,6 +17,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
+import com.mux.cnpj.batch.client.CnpjClient;
+
 @SpringBootApplication
 public class CnpjBatchApplication {
 
@@ -26,17 +28,20 @@ public class CnpjBatchApplication {
 	@Autowired
 	Job importCnpjJob;
 
+	@Autowired
+	CnpjClient cnpjClient;
+
 	public static void main(String[] args) {
 		SpringApplication.run(CnpjBatchApplication.class, args);
 	}
 
 	@EventListener(ApplicationReadyEvent.class)
 	public void voidStartJob() throws JobExecutionAlreadyRunningException, JobRestartException,
-			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
+			JobInstanceAlreadyCompleteException, JobParametersInvalidException, IOException {
 		HashMap<String, JobParameter<?>> parameters = new HashMap<>();
-		LocalDateTime now = LocalDateTime.now();
-		if (now != null) {
-			parameters.put("startTime", new JobParameter<LocalDateTime>(now, LocalDateTime.class));
+		String filesTimeStemp = cnpjClient.getUpdatedFilesTimeStampCsv();
+		if (filesTimeStemp != null) {
+			parameters.put("filesTimeStamp", new JobParameter<String>(filesTimeStemp, String.class));
 		}
 
 		JobParameters jobParameters = new JobParameters(parameters);
