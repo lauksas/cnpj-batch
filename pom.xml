@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.mux.cnpj</groupId>
 	<artifactId>cnpj-batch</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.9</version>
 	<name>cnpj-batch</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
