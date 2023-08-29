@@ -1,43 +1,9 @@
 image:
-  repository: cnpj-batch
+  repository: registry.cube.local:5000/cnpj-batch
   tag: v1.0
-  imagePullPolicy: IfNotPresent
+database:
+  host: 192.168.1.250
+  port: 5432
+  name: mux
+  properties: currentSchema=cnpj&sslmode=require&search_path=cnpj
 schedule: "0 0 * * *"
-failedJobsHistoryLimit: 1
-successfulJobsHistoryLimit: 3
-concurrencyPolicy: Allow
-restartPolicy: OnFailure
-volumeMounts:
-  - name: cnpj-batch-cnpj
-    path: /data
-env:
-  - name: CNPJ_BATCH_DATASOURCE_URL
-    value: jdbc:postgresql://lauksas.com.br:5432/mux?currentSchema=cnpj
-  - name: CNPJ_BATCH_DATASOURCE_USERNAME
-    valueFrom:
-      secretKeyRef:
-        name: cnpj-batch-secret
-        key: CNPJ_BATCH_DATASOURCE_USERNAME
-  - name: CNPJ_BATCH_DATASOURCE_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: cnpj-batch-secret
-        key: CNPJ_BATCH_DATASOURCE_PASSWORD
-  - name: CNPJ_BATCH_DATASOURCE_CONN_TIMEOUT
-    value: "20000"
-  - name: CNPJ_BATCH_DATASOURCE_MAX_PULL_SIZE
-    value: "5"
-  - name: CNPJ_BATCH_CHUNK_SIZE
-    value: "10000"
-  - name: CNPJ_BATCH_CSV_LOCATION
-    value: /data/import
-  - name: CNPJ_BATCH_FLYWAY_USERNAME
-    valueFrom:
-      secretKeyRef:
-        name: cnpj-batch-secret
-        key: CNPJ_BATCH_FLYWAY_USERNAME
-  - name: CNPJ_BATCH_FLYWAY_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: cnpj-batch-secret
-        key: CNPJ_BATCH_FLYWAY_PASSWORD

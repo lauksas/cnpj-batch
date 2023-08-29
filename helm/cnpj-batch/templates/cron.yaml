@@ -11,11 +11,56 @@ spec:
       template:
         spec:
           containers:
-          - name: {{ .Chart.Name }}
-            image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-            imagePullPolicy: IfNotPresent
-            {{- with .Values.env }}
-            env:
-{{ toYaml . | indent 12 }}
-            {{- end }}
+            - name: {{ .Chart.Name }}
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+              resources:
+                requests:
+                  cpu: "500m"
+                  memory: "128Mi"
+                limits:
+                  cpu: "1000m"
+                  memory: "384Mi"
+              imagePullPolicy: IfNotPresent
+              volumeMounts:
+                - name: cnpj-batch-cnpj-volume
+                  mountPath: /data
+              env:
+                - name: JAVA_OPTS
+                  value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=85"
+                - name: CNPJ_BATCH_DATASOURCE_URL
+                  value: jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}?{{ .Values.database.properties }}
+                - name: CNPJ_BATCH_DATASOURCE_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: cnpj-batch-secret
+                      key: CNPJ_BATCH_DATASOURCE_USERNAME
+                - name: CNPJ_BATCH_DATASOURCE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: cnpj-batch-secret
+                      key: CNPJ_BATCH_DATASOURCE_PASSWORD
+                - name: CNPJ_BATCH_DATASOURCE_SCHEMA
+                  value: "cnpj"
+                - name: CNPJ_BATCH_DATASOURCE_CONN_TIMEOUT
+                  value: "20000"
+                - name: CNPJ_BATCH_DATASOURCE_MAX_PULL_SIZE
+                  value: "5"
+                - name: CNPJ_BATCH_CHUNK_SIZE
+                  value: "10000"
+                - name: CNPJ_BATCH_CSV_LOCATION
+                  value: /data/import
+                - name: CNPJ_BATCH_FLYWAY_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: cnpj-batch-secret
+                      key: CNPJ_BATCH_FLYWAY_USERNAME
+                - name: CNPJ_BATCH_FLYWAY_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: cnpj-batch-secret
+                      key: CNPJ_BATCH_FLYWAY_PASSWORD
           restartPolicy: OnFailure
+          volumes:
+            - name: cnpj-batch-cnpj-volume
+              persistentVolumeClaim:
+                claimName: cnpj-batch-cnpj-pvc
