@@ -224,6 +224,7 @@ SELECT create_role_if_not_exists('cnpj_batch');
 COMMIT;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA cnpj TO cnpj_batch;
+GRANT USAGE ON SCHEMA cnpj TO cnpj_batch;
 COMMIT;
 
 
