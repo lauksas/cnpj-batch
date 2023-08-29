@@ -30,10 +30,10 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 
 	@Autowired
 	ApplicationConfig applicationConfig;
-	List<String> cityCodesAllowed = applicationConfig.getCityCodesToImport();
 
 	@Override
 	public ItemProcessor<EstablishmentCsv, Estabilishment> getProcessor() {
+		List<String> cityCodesAllowed = applicationConfig.getCityCodesToImport();
 		return new ItemProcessor<EstablishmentCsv, Estabilishment>() {
 			@Override
 			@Nullable
