@@ -7,8 +7,10 @@ import static com.mux.cnpj.batch.formatter.CsvFormatter.telToInt;
 import static com.mux.cnpj.batch.formatter.CsvFormatter.toInteger;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -19,12 +21,16 @@ import com.mux.cnpj.batch.data.entity.Estabilishment;
 import com.mux.cnpj.batch.data.entity.Municipality;
 import com.mux.cnpj.batch.dto.EstablishmentCsv;
 import com.mux.cnpj.batch.job.step.factory.AbstractCNPJStepBuilder;
+import com.mux.cnpj.config.ApplicationConfig;
 
 @Component
 public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<EstablishmentCsv, Estabilishment> {
 
-	private static final String RJ_CITY_CODE = "6001";
 	private static final String ACTIVE_CODE = "02";
+
+	@Autowired
+	ApplicationConfig applicationConfig;
+	List<String> cityCodesAllowed = applicationConfig.getCityCodesToImport();
 
 	@Override
 	public ItemProcessor<EstablishmentCsv, Estabilishment> getProcessor() {
@@ -39,7 +45,7 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 
 				String cityCode = csv.getCodMunicipio_colU_21().trim();
 
-				if (!RJ_CITY_CODE.equals(cityCode))
+				if (!cityCodesAllowed.contains(cityCode))
 					return null;
 
 				Estabilishment estabilishment = Estabilishment.builder()
