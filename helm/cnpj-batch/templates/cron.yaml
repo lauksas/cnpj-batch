@@ -18,8 +18,8 @@ spec:
                   cpu: "500m"
                   memory: "128Mi"
                 limits:
-                  cpu: "1000m"
-                  memory: "384Mi"
+                  cpu: "2000m"
+                  memory: "512Mi"
               imagePullPolicy: IfNotPresent
               volumeMounts:
                 - name: cnpj-batch-cnpj-volume
@@ -27,6 +27,12 @@ spec:
               env:
                 - name: JAVA_OPTS
                   value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=85"
+                - name: CNPJ_BATCH_LOG_PROPERTIES
+                  value: "false"
+                - name: CNPJ_BATCH_FORCE_REIMPORT
+                  value: "false"
+                - name: CNPJ_BATCH_CSV_CITY_CODES
+                  value: "6001,7107"
                 - name: CNPJ_BATCH_DATASOURCE_URL
                   value: jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}?{{ .Values.database.properties }}
                 - name: CNPJ_BATCH_DATASOURCE_USERNAME

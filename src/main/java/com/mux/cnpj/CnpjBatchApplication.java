@@ -3,7 +3,9 @@ package com.mux.cnpj;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;
@@ -45,7 +47,11 @@ public class CnpjBatchApplication {
 		}
 
 		JobParameters jobParameters = new JobParameters(parameters);
-		jobLauncher.run(importCnpjJob, jobParameters);
+		JobExecution execution = jobLauncher.run(importCnpjJob, jobParameters);
+		ExitStatus exitStatus = execution.getExitStatus();
+		if (ExitStatus.FAILED.equals(exitStatus)) {
+			System.exit(1);
+		}
 	}
 
 }

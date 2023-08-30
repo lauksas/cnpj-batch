@@ -15,6 +15,8 @@ public class ApplicationConfig {
 	Integer chunkSize;
 	String csvLocation;
 	String csvCityCodeToImport;
+	Boolean logProperties;
+	Boolean forceReimport;
 
 	public List<String> getCityCodesToImport() {
 		String[] codes = {};
