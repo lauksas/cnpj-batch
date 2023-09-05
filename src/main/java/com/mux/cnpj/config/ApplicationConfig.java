@@ -15,6 +15,7 @@ public class ApplicationConfig {
 	Integer chunkSize;
 	String csvLocation;
 	String csvCityCodeToImport;
+	String csvStateCodeToImport;
 	Boolean logProperties;
 	Boolean forceReimport;
 
@@ -22,6 +23,14 @@ public class ApplicationConfig {
 		String[] codes = {};
 		if (csvCityCodeToImport != null && !csvCityCodeToImport.isEmpty()) {
 			codes = csvCityCodeToImport.split(",");
+		}
+		return Arrays.asList(codes);
+	}
+
+	public List<String> getStateCodesToImport() {
+		String[] codes = {};
+		if (csvStateCodeToImport != null && !csvStateCodeToImport.isEmpty()) {
+			codes = csvStateCodeToImport.split(",");
 		}
 		return Arrays.asList(codes);
 	}

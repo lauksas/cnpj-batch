@@ -33,6 +33,8 @@ spec:
                   value: "false"
                 - name: CNPJ_BATCH_CSV_CITY_CODES
                   value: "6001,7107"
+                - name: CNPJ_BATCH_CSV_STATE_CODES
+                  value: "RJ,SP"
                 - name: CNPJ_BATCH_DATASOURCE_URL
                   value: jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}?{{ .Values.database.properties }}
                 - name: CNPJ_BATCH_DATASOURCE_USERNAME

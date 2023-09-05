@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -28,24 +27,34 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 
 	private static final String ACTIVE_CODE = "02";
 
-	@Autowired
-	ApplicationConfig applicationConfig;
+	private List<String> cityCodesAllowed;
+	private List<String> stateCodesAllowed;
+	private Boolean importAllCities;
+	private Boolean importAllStates;
+
+	public EstabilishmentsImportStepBuilder(ApplicationConfig applicationConfig) {
+		cityCodesAllowed = applicationConfig.getCityCodesToImport();
+		stateCodesAllowed = applicationConfig.getStateCodesToImport();
+		importAllCities = cityCodesAllowed.contains("all");
+		importAllStates = stateCodesAllowed.contains("all");
+	}
 
 	@Override
 	public ItemProcessor<EstablishmentCsv, Estabilishment> getProcessor() {
-		List<String> cityCodesAllowed = applicationConfig.getCityCodesToImport();
+
 		return new ItemProcessor<EstablishmentCsv, Estabilishment>() {
 			@Override
 			@Nullable
 			public Estabilishment process(@NonNull EstablishmentCsv csv) throws Exception {
 				String statusId = csv.getSituacaoCadastral_colF_6().trim();
-
-				if (!ACTIVE_CODE.equals(statusId))
-					return null;
-
+				String stateCode = nullIfEmpty(csv.getUf_colT_20());
 				String cityCode = csv.getCodMunicipio_colU_21().trim();
 
-				if (!cityCodesAllowed.contains(cityCode))
+				if (skipStatus(statusId))
+					return null;
+				if (skipCity(cityCode))
+					return null;
+				if (skipState(stateCode))
 					return null;
 
 				Estabilishment estabilishment = Estabilishment.builder()
@@ -70,7 +79,7 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 						.complement(nullIfEmpty(csv.getComplemento_colQ_17()))
 						.district(nullIfEmpty(csv.getBairro_colR_18()))
 						.zipCode(telToInt(csv.getCep_colS_19()))
-						.stateCode(nullIfEmpty(csv.getUf_colT_20()))
+						.stateCode(stateCode)
 						.cityCode(
 								Municipality.builder()
 										.id(toInteger(cityCode))
@@ -86,7 +95,24 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 
 				return estabilishment;
 			}
+
+			private boolean skipStatus(String statusId) {
+				return !ACTIVE_CODE.equals(statusId);
+			}
 		};
+
+	}
+
+	protected Boolean skipState(String stateCode) {
+		if (importAllStates)
+			return false;
+		return !stateCodesAllowed.contains(stateCode);
+	}
+
+	protected Boolean skipCity(String cityCode) {
+		if (importAllCities)
+			return false;
+		return !cityCodesAllowed.contains(cityCode);
 	}
 
 	@Override
