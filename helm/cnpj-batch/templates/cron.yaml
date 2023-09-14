@@ -6,6 +6,8 @@ metadata:
     {{- include "cnpj-batch.labels" . | nindent 4 }}
 spec:
   schedule: {{ .Values.schedule }}
+  concurrencyPolicy: Forbid
+  suspend: {{ .Values.suspend | default false }}
   jobTemplate:
     spec:
       template:
@@ -20,7 +22,7 @@ spec:
                 limits:
                   cpu: "2000m"
                   memory: "512Mi"
-              imagePullPolicy: IfNotPresent
+              imagePullPolicy: Always
               volumeMounts:
                 - name: cnpj-batch-cnpj-volume
                   mountPath: /data
@@ -41,12 +43,12 @@ spec:
                   valueFrom:
                     secretKeyRef:
                       name: cnpj-batch-secret
-                      key: CNPJ_BATCH_DATASOURCE_USERNAME
+                      key: CNPJ_BATCH_FLYWAY_USERNAME
                 - name: CNPJ_BATCH_DATASOURCE_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: cnpj-batch-secret
-                      key: CNPJ_BATCH_DATASOURCE_PASSWORD
+                      key: CNPJ_BATCH_FLYWAY_PASSWORD
                 - name: CNPJ_BATCH_DATASOURCE_SCHEMA
                   value: "cnpj"
                 - name: CNPJ_BATCH_DATASOURCE_CONN_TIMEOUT
