@@ -33,6 +33,9 @@ run: image
 push: image
 	podman push --tls-verify=$(PODMAN_TLS) $(IMAGE_URL)
 
+image-prune:
+	podman rmi $(IMAGE_URL); skopeo delete --tls-verify=$(PODMAN_TLS) docker://$(IMAGE_URL)
+
 secret:
 	read -p "It will create the secret based on secrets.env, check the file and press any key to continue" && kubectl create secret generic $(SECRET_NAME) --from-env-file=secrets.env -n $(NAMESPACE)
 
@@ -46,7 +49,7 @@ dry-run:
 	helm upgrade --install --create-namespace -n $(NAMESPACE) $(DEPLOYMENT_NAME) $(CHART_PATH) --values=$(CHART_PATH)/values.yaml --dry-run --debug
 
 lint:
-	helm lint $(CH)
+	helm lint $(CHART_PATH)
 
 delete:
 	helm delete -n $(NAMESPACE) $(DEPLOYMENT_NAME)
