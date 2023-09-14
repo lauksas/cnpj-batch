@@ -74,7 +74,7 @@ public class Partner {
 		id.append(":")
 				.append(company.getCnpj())
 				.append(":")
-				.append(personType)
+				.append(personType.getId().toString())
 				.append(":");
 
 		if (personType.getId().equals(3)) {
