@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class Country {
 	@Id
-	@Column(columnDefinition = "smallint")
+	@Column(columnDefinition = "int2")
 	private Integer id;
 
 	@Column(columnDefinition = "text")

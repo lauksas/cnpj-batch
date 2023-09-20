@@ -1,6 +1,6 @@
 package com.mux.cnpj.batch.data.entity;
 
-import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,16 +24,17 @@ public class Partner {
 	@Column(columnDefinition = "text")
 	private String id;
 
-	private BigDecimal maskedCpfOrCnpj;
+	@Column(columnDefinition = "int8")
+	private BigInteger maskedCpfOrCnpj;
 
 	@ManyToOne
-	@JoinColumn(foreignKey = @ForeignKey(name = "partner_company_fk"))
+	@JoinColumn(name = "cnpj", foreignKey = @ForeignKey(name = "partner_company_fk"))
 	private Company company;
 
 	@ManyToOne
 	//@formatter:off
 	@JoinColumn(
-		columnDefinition = "smallint",
+		columnDefinition = "int2",
 		 foreignKey = @ForeignKey(name = "partner_person_type_fk")
 	)
 	//@formatter:on
@@ -74,11 +75,10 @@ public class Partner {
 		id.append(":")
 				.append(company.getCnpj())
 				.append(":")
-				.append(personType.getId().toString())
-				.append(":");
+				.append(personType.getId().toString());
 
 		if (personType.getId().equals(3)) {
-			id.append(name.replaceAll(" ", "_"));
+			id.append(":").append(name.replaceAll(" ", "_"));
 		}
 		this.id = id.toString();
 

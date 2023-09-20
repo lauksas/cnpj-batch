@@ -1,6 +1,7 @@
 package com.mux.cnpj.batch.formatter;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,7 +22,21 @@ public final class CsvFormatter {
 		try {
 			return new BigDecimal(numberString.replaceAll(",", "."));
 		} catch (Exception e) {
-			log.warn("Problem parsing {} to number", numberString);
+			log.warn("Problem parsing {} to BigDecimal", numberString);
+			return null;
+		}
+	}
+
+	public static BigInteger toBigInteger(String numberString) {
+		numberString = nullIfEmpty(numberString);
+
+		if (numberString == null)
+			return null;
+
+		try {
+			return new BigInteger(numberString);
+		} catch (Exception e) {
+			log.warn("Problem parsing {} to BigDecimal", numberString);
 			return null;
 		}
 	}
@@ -34,7 +49,7 @@ public final class CsvFormatter {
 		try {
 			return Integer.parseInt(numberString.replaceAll(",", "."));
 		} catch (Exception e) {
-			log.warn("Problem parsing {} to number", numberString);
+			log.warn("Problem parsing {} to Integer", numberString);
 			return null;
 		}
 

@@ -1,5 +1,6 @@
 package com.mux.cnpj.batch.data.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -35,13 +36,13 @@ public class Estabilishment {
 	@EmbeddedId
 	private CnpjId cnpjId;
 
-	@Column(columnDefinition = "smallint")
+	@Column(columnDefinition = "int2")
 	private Integer headquartersIndicator;
 
 	@Column(columnDefinition = "text")
 	private String tradeName;
 
-	@Column(columnDefinition = "smallint")
+	@Column(columnDefinition = "int2")
 	private Integer statusId;
 
 	@ManyToOne
@@ -83,28 +84,31 @@ public class Estabilishment {
 	@Column(columnDefinition = "text")
 	private String stateCode;
 
+	@Column(columnDefinition = "date")
+	private LocalDate created;
+
 	@ManyToOne
 	//@formatter:off
 	@JoinColumn(
-		columnDefinition = "smallint",
+		columnDefinition = "int2",
 		foreignKey = @ForeignKey(name = "estabilishment_municipality_fk")
 	)
 	//@formatter:on
 	private Municipality cityCode;
 
-	@Column(columnDefinition = "smallint")
+	@Column(columnDefinition = "int2")
 	private Integer areaCode1;
 
 	@Column(columnDefinition = "int")
 	private Integer telephone1;
 
-	@Column(columnDefinition = "smallint")
+	@Column(columnDefinition = "int2")
 	private Integer areaCode2;
 
 	@Column(columnDefinition = "int")
 	private Integer telephone2;
 
-	@Column(columnDefinition = "smallint")
+	@Column(columnDefinition = "int2")
 	private Integer faxAreaCode;
 
 	@Column(columnDefinition = "int")
@@ -112,4 +116,16 @@ public class Estabilishment {
 
 	@Column(columnDefinition = "timestamptz")
 	private LocalDateTime lastUpdated;
+
+	@ManyToOne
+	// @formatter:off
+	@JoinColumn(
+		name = "cnpj",
+		referencedColumnName = "cnpj",
+		insertable = false,
+		updatable = false,
+		foreignKey = @ForeignKey(name = "establishment_company_fk")
+		)
+	// @formatter:on
+	private Company company;
 }

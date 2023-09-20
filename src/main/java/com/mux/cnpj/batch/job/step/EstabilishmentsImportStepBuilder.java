@@ -6,18 +6,23 @@ import static com.mux.cnpj.batch.formatter.CsvFormatter.nullIfEmpty;
 import static com.mux.cnpj.batch.formatter.CsvFormatter.telToInt;
 import static com.mux.cnpj.batch.formatter.CsvFormatter.toInteger;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import com.mux.cnpj.batch.data.entity.Cnae;
 import com.mux.cnpj.batch.data.entity.CnpjId;
+import com.mux.cnpj.batch.data.entity.Company;
 import com.mux.cnpj.batch.data.entity.Estabilishment;
 import com.mux.cnpj.batch.data.entity.Municipality;
+import com.mux.cnpj.batch.data.repository.CompaniesRepository;
 import com.mux.cnpj.batch.dto.EstablishmentCsv;
 import com.mux.cnpj.batch.job.step.factory.AbstractCNPJStepBuilder;
 import com.mux.cnpj.config.ApplicationConfig;
@@ -26,6 +31,9 @@ import com.mux.cnpj.config.ApplicationConfig;
 public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<EstablishmentCsv, Estabilishment> {
 
 	private static final String ACTIVE_CODE = "02";
+
+	@Autowired
+	private CompaniesRepository companiesRepository;
 
 	private List<String> cityCodesAllowed;
 	private List<String> stateCodesAllowed;
@@ -57,14 +65,29 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 				if (skipState(stateCode))
 					return null;
 
+				Integer cnpj = toInteger(csv.getCnpj_colA_1());
+
+				LocalDate created;
+
+				try {
+					created = LocalDate.parse(
+							csv.getDataInicioAtividade_colK_11(),
+							DateTimeFormatter.ofPattern("yyyyMMdd"));
+				} catch (Exception e) {
+					created = null;
+				}
+
+				companiesRepository.save(Company.builder().cnpj(cnpj).build());
+
 				Estabilishment estabilishment = Estabilishment.builder()
 						.cnpjId(
 								CnpjId.builder().cnpj(
-										toInteger(csv.getCnpj_colA_1()))
+										cnpj)
 										.headquartersPart(toInteger(csv.getFilial_colB_2()))
 										.checkDigit(toInteger(csv.getDigitoVerificador_colC_3()))
 										.build())
 						.headquartersIndicator(toInteger(csv.getIndMatrizFilialRepetido_colD_4()))
+						.created(created)
 						.tradeName(nullIfEmpty(csv.getNomeFantasia_colE_5()))
 						.statusId(toInteger(statusId))
 						.mainCnaeFiscal(
@@ -134,6 +157,7 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 				"indMatrizFilialRepetido_colD_4",
 				"nomeFantasia_colE_5",
 				"situacaoCadastral_colF_6",
+				"dataInicioAtividade_colK_11",
 				"cnaeFiscalPrincipal_colL_12",
 				"cnaeFiscal_colM_13",
 				"tipoLograodouro_colN_14",
@@ -163,6 +187,7 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 				3,
 				4,
 				5,
+				10,
 				11,
 				12,
 				13,

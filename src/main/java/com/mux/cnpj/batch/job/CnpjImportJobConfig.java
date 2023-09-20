@@ -5,6 +5,7 @@ import javax.sql.DataSource;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -37,8 +38,11 @@ import com.mux.cnpj.batch.job.step.ReasonDataFixTasklet;
 import com.mux.cnpj.batch.job.step.ReasonsImportStepBuilder;
 import com.mux.cnpj.batch.job.step.SimpleOptantImportStepBuilder;
 
+import lombok.extern.log4j.Log4j2;
+
 @Configuration
 @EnableBatchProcessing(dataSourceRef = "batchDataSource", transactionManagerRef = "batchTransactionManager")
+@Log4j2
 public class CnpjImportJobConfig {
 
 	@Autowired
@@ -121,6 +125,13 @@ public class CnpjImportJobConfig {
 				.on("PROCESS_FILES")
 				.to(processFilesFLow)
 				.end()
+				.listener(new SkipListener<Object, Object>() {
+					@Override
+					public void onSkipInWrite(Object item, Throwable t) {
+						SkipListener.super.onSkipInWrite(item, t);
+						log.warn("record was skipet", t);
+					}
+				})
 				.build();
 		return job;
 	}

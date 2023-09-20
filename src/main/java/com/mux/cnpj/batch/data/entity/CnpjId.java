@@ -16,9 +16,9 @@ public class CnpjId {
 	@Column(columnDefinition = "integer")
 	private Integer cnpj;
 
-	@Column(columnDefinition = "smallint")
+	@Column(columnDefinition = "int2")
 	private Integer headquartersPart;
 
-	@Column(columnDefinition = "smallint")
+	@Column(columnDefinition = "int2")
 	private Integer checkDigit;
 }

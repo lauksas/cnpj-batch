@@ -1,7 +1,7 @@
 package com.mux.cnpj.batch.job.step;
 
 import static com.mux.cnpj.batch.formatter.CsvFormatter.nullIfEmpty;
-import static com.mux.cnpj.batch.formatter.CsvFormatter.toBigDecimal;
+import static com.mux.cnpj.batch.formatter.CsvFormatter.toBigInteger;
 import static com.mux.cnpj.batch.formatter.CsvFormatter.toInteger;
 
 import java.util.HashMap;
@@ -25,6 +25,7 @@ import com.mux.cnpj.batch.data.entity.Country;
 import com.mux.cnpj.batch.data.entity.Partner;
 import com.mux.cnpj.batch.data.entity.PartnerQualification;
 import com.mux.cnpj.batch.data.entity.PersonType;
+import com.mux.cnpj.batch.data.repository.CompaniesRepository;
 import com.mux.cnpj.batch.dto.PartnersCsv;
 import com.mux.cnpj.batch.job.step.factory.AbstractCNPJStepBuilder;
 import com.mux.cnpj.batch.job.writer.JdbcBatchItemWriterCNPJ;
@@ -33,10 +34,13 @@ import com.mux.cnpj.config.DataSourceConfig;
 @Component
 public class PartnersImportStepBuilder extends AbstractCNPJStepBuilder<PartnersCsv, Partner> {
 
+	@Autowired
+	private CompaniesRepository companiesRepository;
+
 	private static final String query = """
 					INSERT INTO cnpj.partner
 						(
-							company_cnpj,
+							cnpj,
 							id,
 							person_type_id,
 							name,
@@ -62,7 +66,7 @@ public class PartnersImportStepBuilder extends AbstractCNPJStepBuilder<PartnersC
 							(select 1 from cnpj.estabilishment es where es.cnpj=:companyCnpj limit 1)
 					on conflict (id)
 						do update set
-							company_cnpj = :companyCnpj,
+							cnpj = :companyCnpj,
 							person_type_id = :personTypeId,
 							name = :name,
 							masked_cpf_or_cnpj = :maskedCpfOrCnpj,
@@ -83,6 +87,11 @@ public class PartnersImportStepBuilder extends AbstractCNPJStepBuilder<PartnersC
 
 				Integer companyCnpj = toInteger(csv.getCnpj_colA_1());
 
+				boolean companyExists = companiesRepository.existsById(companyCnpj);
+				if(!companyExists){
+					return null;
+				}
+
 				String masketCpfOrCnpjString = csv.getCnpjSocioOuCpfMascarado_colD_4()
 						.replaceAll("\\*", "");
 
@@ -92,7 +101,7 @@ public class PartnersImportStepBuilder extends AbstractCNPJStepBuilder<PartnersC
 
 				Partner partner = Partner.builder()
 						.maskedCpfOrCnpj(
-								toBigDecimal(masketCpfOrCnpjString))
+								toBigInteger(masketCpfOrCnpjString))
 						.company(Company.builder().cnpj(companyCnpj).build())
 						.personType(
 								PersonType.builder()
