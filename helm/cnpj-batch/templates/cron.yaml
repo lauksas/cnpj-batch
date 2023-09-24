@@ -34,9 +34,9 @@ spec:
                 - name: CNPJ_BATCH_FORCE_REIMPORT
                   value: "false"
                 - name: CNPJ_BATCH_CSV_CITY_CODES
-                  value: "6001,7107"
+                  value: "all"
                 - name: CNPJ_BATCH_CSV_STATE_CODES
-                  value: "RJ,SP"
+                  value: "all"
                 - name: CNPJ_BATCH_DATASOURCE_URL
                   value: jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}?{{ .Values.database.properties }}
                 - name: CNPJ_BATCH_DATASOURCE_USERNAME
