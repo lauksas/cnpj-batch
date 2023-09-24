@@ -146,6 +146,7 @@ CREATE TABLE IF NOT EXISTS estabilishment (
 	zip_code int4 NULL,
 	city_code_id int4 NULL,
 	main_cnae_fiscal_id int4 NULL,
+	email text NULL,
 	CONSTRAINT estabilishment_pkey PRIMARY KEY (check_digit, cnpj, headquarters_part),
 	CONSTRAINT estabilishment_main_cnae_fk FOREIGN KEY (main_cnae_fiscal_id) REFERENCES cnae(id),
 	CONSTRAINT estabilishment_municipality_fk FOREIGN KEY (city_code_id) REFERENCES municipality(id),

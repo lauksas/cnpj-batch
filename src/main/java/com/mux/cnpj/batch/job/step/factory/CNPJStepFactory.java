@@ -12,8 +12,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.mux.cnpj.batch.job.reader.MultiResourceItemReaderCNPJ;
 import com.mux.cnpj.config.ApplicationConfig;
 
-import jakarta.persistence.EntityNotFoundException;
-
 @Component
 public class CNPJStepFactory<From, To> {
 
@@ -47,9 +45,6 @@ public class CNPJStepFactory<From, To> {
 						includeColumns))
 				.processor(processor)
 				.writer(writer)
-				.faultTolerant()
-				.skip(EntityNotFoundException.class)
-				.skipLimit(Integer.MAX_VALUE)
 				.build();
 		return step;
 	}

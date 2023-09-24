@@ -24,6 +24,7 @@ import org.springframework.jdbc.support.JdbcTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.mux.cnpj.batch.job.step.CnaeImportStepBuilder;
+import com.mux.cnpj.batch.job.step.CnaePopulator;
 import com.mux.cnpj.batch.job.step.CompaniesImportStepBuilder;
 import com.mux.cnpj.batch.job.step.CountryDataFixTasklet;
 import com.mux.cnpj.batch.job.step.CountryImportStepBuilder;
@@ -66,6 +67,9 @@ public class CnpjImportJobConfig {
 	@Autowired
 	DownloadFilesTasklet downloadFilesTasklet;
 
+	@Autowired
+	CnaePopulator cnaePopulator;
+
 	@Bean
 	public Job importCnpjJob(
 			JobRepository jobRepository,
@@ -93,6 +97,9 @@ public class CnpjImportJobConfig {
 		Step personTypePopulatorFixStep = new StepBuilder(personTypePopulator.getClass().getName(), jobRepository)
 				.tasklet(personTypePopulator, platformTransactionManager).build();
 
+		Step cnaePopulatorFixStep = new StepBuilder(cnaePopulator.getClass().getName(), jobRepository)
+				.tasklet(cnaePopulator, platformTransactionManager).build();
+
 		Flow processFilesFLow = new FlowBuilder<Flow>("processFilesFlow")
 				.from(cnaeStepBuilder.build())
 				.next(reasonStepBuilder.build())
@@ -103,6 +110,7 @@ public class CnpjImportJobConfig {
 				.next(personTypePopulatorFixStep)
 				.next(reasonDataFixStep)
 				.next(countryDataFixStep)
+				.next(cnaePopulatorFixStep)
 				.next(estabilishmentStepBuilder.build())
 				.next(companyStepBuilder.build())
 				.next(simpleOptantImportStepBuilder.build())

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.mux.cnpj.batch.data.entity.Cnae;
@@ -67,10 +68,12 @@ public final class CsvFormatter {
 		}
 	}
 
+	private static Pattern nullPattern = Pattern.compile("\0");
+
 	public static String nullIfEmpty(String s) {
 		String result = null;
 		if (s != null) {
-			String trimmed = s.trim();
+			String trimmed = nullPattern.matcher(s.trim()).replaceAll("");
 			result = trimmed.isBlank() ? null : trimmed;
 		}
 		return result;

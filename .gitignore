@@ -34,5 +34,5 @@ build/
 # MAC
 .DS_Store
 /csv/*
-data/
+/data
 secrets.env

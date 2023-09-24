@@ -117,6 +117,9 @@ public class Estabilishment {
 	@Column(columnDefinition = "timestamptz")
 	private LocalDateTime lastUpdated;
 
+	@Column(columnDefinition = "text")
+	private String email;
+
 	@ManyToOne
 	// @formatter:off
 	@JoinColumn(
