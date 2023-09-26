@@ -114,6 +114,7 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 						.faxAreaCode(telToInt(csv.getFax_colV_26()))
 						.faxTelephone(telToInt(csv.getFax_colW_27()))
 						.lastUpdated(LocalDateTime.now())
+						.email(nullIfEmpty(csv.getCorreioEletronico_colAB_28()))
 						.build();
 
 				return estabilishment;
