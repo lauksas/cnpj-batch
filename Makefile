@@ -37,7 +37,7 @@ image-prune:
 	podman rmi $(IMAGE_URL); skopeo delete --tls-verify=$(PODMAN_TLS) docker://$(IMAGE_URL)
 
 secret:
-	read -p "It will create the secret based on secrets.env, check the file and press any key to continue" && kubectl create secret generic $(SECRET_NAME) --from-env-file=secrets.env -n $(NAMESPACE)
+	read -p "It will create the secret based on secrets.env, check the file and press any key to continue" && kubectl create secret generic $(SECRET_NAME) --save-config --dry-run=client --from-env-file=secrets.env -n $(NAMESPACE) -o yaml | kubectl apply -f -
 
 pvc:
 	kubectl apply -n $(NAMESPACE) -f helm/pvc.yaml
