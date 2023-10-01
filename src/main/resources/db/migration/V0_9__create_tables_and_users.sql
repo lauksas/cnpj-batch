@@ -237,7 +237,6 @@ COMMIT;
 SELECT create_role_if_not_exists('cnpj_batch_readonly');
 COMMIT;
 ALTER ROLE cnpj_batch_readonly WITH LOGIN;
-GRANT CONNECT ON DATABASE all_cnpj TO cnpj_batch_readonly;
 GRANT USAGE ON SCHEMA cnpj TO cnpj_batch_readonly;
 GRANT SELECT ON ALL TABLES IN SCHEMA cnpj TO cnpj_batch_readonly;
 COMMIT;
