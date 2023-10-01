@@ -29,7 +29,7 @@ import com.mux.cnpj.batch.job.step.CompaniesImportStepBuilder;
 import com.mux.cnpj.batch.job.step.CountryDataFixTasklet;
 import com.mux.cnpj.batch.job.step.CountryImportStepBuilder;
 import com.mux.cnpj.batch.job.step.DownloadFilesTasklet;
-import com.mux.cnpj.batch.job.step.EstabilishmentsImportStepBuilder;
+import com.mux.cnpj.batch.job.step.EstablishmentsImportStepBuilder;
 import com.mux.cnpj.batch.job.step.LegalNatureImportStepBuilder;
 import com.mux.cnpj.batch.job.step.MunicipalityImportStepBuilder;
 import com.mux.cnpj.batch.job.step.PartnersImportStepBuilder;
@@ -80,7 +80,7 @@ public class CnpjImportJobConfig {
 			CnaeImportStepBuilder cnaeStepBuilder,
 			PartnersQualificationsImportStepBuilder partnersQualificationsImportStepBuilder,
 			CountryImportStepBuilder countryImportStepBuilder,
-			EstabilishmentsImportStepBuilder estabilishmentStepBuilder,
+			EstablishmentsImportStepBuilder establishmentStepBuilder,
 			CompaniesImportStepBuilder companyStepBuilder,
 			SimpleOptantImportStepBuilder simpleOptantImportStepBuilder,
 			PartnersImportStepBuilder partnersImportStepBuilder) {
@@ -111,7 +111,7 @@ public class CnpjImportJobConfig {
 				.next(reasonDataFixStep)
 				.next(countryDataFixStep)
 				.next(cnaePopulatorFixStep)
-				.next(estabilishmentStepBuilder.build())
+				.next(establishmentStepBuilder.build())
 				.next(companyStepBuilder.build())
 				.next(simpleOptantImportStepBuilder.build())
 				.next(partnersImportStepBuilder.build())

@@ -63,7 +63,7 @@ public class PartnersImportStepBuilder extends AbstractCNPJStepBuilder<PartnersC
 							:legalRepresentantName,
 							:legalRepresentantQualificationId
 						where exists
-							(select 1 from cnpj.estabilishment es where es.cnpj=:companyCnpj limit 1)
+							(select 1 from cnpj.establishment es where es.cnpj=:companyCnpj limit 1)
 					on conflict (id)
 						do update set
 							cnpj = :companyCnpj,

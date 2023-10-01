@@ -33,7 +33,7 @@ public class SimpleOptantImportStepBuilder extends AbstractCNPJStepBuilder<Simpl
 						(cnpj, simple_optant, mei_optant)
 						select :cnpj, :simpleOptant, :meiOptant
 						where exists
-							(select 1 from cnpj.estabilishment es where es.cnpj=:cnpj limit 1)
+							(select 1 from cnpj.establishment es where es.cnpj=:cnpj limit 1)
 					on conflict (cnpj)
 						do update set
 						simple_optant = :simpleOptant,

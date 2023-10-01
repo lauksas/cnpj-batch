@@ -5,13 +5,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 
 import com.mux.cnpj.batch.data.entity.CnpjId;
-import com.mux.cnpj.batch.data.entity.Estabilishment;
+import com.mux.cnpj.batch.data.entity.Establishment;
 
 import jakarta.persistence.QueryHint;
 
-public interface EstabilishmentRepository extends JpaRepository<Estabilishment, CnpjId> {
+public interface EstablishmentRepository extends JpaRepository<Establishment, CnpjId> {
 
-	@Query("select e.cnpjId.cnpj from Estabilishment e where e.cnpjId.cnpj = :cnpj")
+	@Query("select e.cnpjId.cnpj from Establishment e where e.cnpjId.cnpj = :cnpj")
 	@QueryHints({@QueryHint(name = "org.hibernate.fetchSize", value = "1")})
 	Integer findByCnpj(Integer cnpj);
 

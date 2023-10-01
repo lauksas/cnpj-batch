@@ -116,13 +116,13 @@ CREATE TABLE IF NOT EXISTS company (
 );
 
 
--- cnpj.estabilishment definition
+-- cnpj.establishment definition
 
 -- Drop table
 
--- DROP TABLE estabilishment;
+-- DROP TABLE establishment;
 
-CREATE TABLE IF NOT EXISTS estabilishment (
+CREATE TABLE IF NOT EXISTS establishment (
 	check_digit int2 NOT NULL,
 	cnpj int4 NOT NULL,
 	headquarters_part int2 NOT NULL,
@@ -147,28 +147,28 @@ CREATE TABLE IF NOT EXISTS estabilishment (
 	city_code_id int4 NULL,
 	main_cnae_fiscal_id int4 NULL,
 	email text NULL,
-	CONSTRAINT estabilishment_pkey PRIMARY KEY (check_digit, cnpj, headquarters_part),
-	CONSTRAINT estabilishment_main_cnae_fk FOREIGN KEY (main_cnae_fiscal_id) REFERENCES cnae(id),
-	CONSTRAINT estabilishment_municipality_fk FOREIGN KEY (city_code_id) REFERENCES municipality(id),
+	CONSTRAINT establishment_pkey PRIMARY KEY (check_digit, cnpj, headquarters_part),
+	CONSTRAINT establishment_main_cnae_fk FOREIGN KEY (main_cnae_fiscal_id) REFERENCES cnae(id),
+	CONSTRAINT establishment_municipality_fk FOREIGN KEY (city_code_id) REFERENCES municipality(id),
 	CONSTRAINT establishment_company_fk FOREIGN KEY (cnpj) REFERENCES company(cnpj)
 );
-CREATE INDEX cnpj_index ON cnpj.estabilishment USING btree (cnpj);
+CREATE INDEX cnpj_index ON cnpj.establishment USING btree (cnpj);
 
 
--- cnpj.estabilishment_cnae definition
+-- cnpj.establishment_cnae definition
 
 -- Drop table
 
--- DROP TABLE estabilishment_cnae;
+-- DROP TABLE establishment_cnae;
 
-CREATE TABLE IF NOT EXISTS estabilishment_cnae (
-	estabilishment_check_digit int2 NOT NULL,
-	estabilishment_cnpj int4 NOT NULL,
-	estabilishment_headquarters_part int2 NOT NULL,
+CREATE TABLE IF NOT EXISTS establishment_cnae (
+	establishment_check_digit int2 NOT NULL,
+	establishment_cnpj int4 NOT NULL,
+	establishment_headquarters_part int2 NOT NULL,
 	fiscal_cenae_id int4 NOT NULL,
-	CONSTRAINT estabilishment_cnae_pkey PRIMARY KEY (estabilishment_check_digit, estabilishment_cnpj, estabilishment_headquarters_part, fiscal_cenae_id),
-	CONSTRAINT cnae_estabilishment_fk FOREIGN KEY (fiscal_cenae_id) REFERENCES cnae(id),
-	CONSTRAINT estabilishment_cnae_composite_fk FOREIGN KEY (estabilishment_check_digit,estabilishment_cnpj,estabilishment_headquarters_part) REFERENCES estabilishment(check_digit,cnpj,headquarters_part)
+	CONSTRAINT establishment_cnae_pkey PRIMARY KEY (establishment_check_digit, establishment_cnpj, establishment_headquarters_part, fiscal_cenae_id),
+	CONSTRAINT cnae_establishment_fk FOREIGN KEY (fiscal_cenae_id) REFERENCES cnae(id),
+	CONSTRAINT establishment_cnae_composite_fk FOREIGN KEY (establishment_check_digit,establishment_cnpj,establishment_headquarters_part) REFERENCES establishment(check_digit,cnpj,headquarters_part)
 );
 
 
@@ -225,9 +225,19 @@ END;
 $$
 LANGUAGE plpgsql;
 COMMIT;
-SELECT create_role_if_not_exists('cnpj_batch');
+SELECT create_role_if_not_exists('cnpj_batch_readwrite');
 COMMIT;
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA cnpj TO cnpj_batch;
-GRANT USAGE ON SCHEMA cnpj TO cnpj_batch;
+ALTER ROLE cnpj_batch_readwrite WITH LOGIN;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA cnpj TO cnpj_batch_readwrite;
+GRANT USAGE ON SCHEMA cnpj TO cnpj_batch_readwrite;
+COMMIT;
+
+
+SELECT create_role_if_not_exists('cnpj_batch_readonly');
+COMMIT;
+ALTER ROLE cnpj_readonly WITH LOGIN;
+GRANT CONNECT ON DATABASE all_cnpj TO cnpj_readonly;
+GRANT USAGE ON SCHEMA cnpj TO cnpj_readonly;
+GRANT SELECT ON ALL TABLES IN SCHEMA cnpj TO cnpj_readonly;
 COMMIT;

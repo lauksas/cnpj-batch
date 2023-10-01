@@ -31,7 +31,7 @@ import lombok.NoArgsConstructor;
 	}
 )
 //@formatter:on
-public class Estabilishment {
+public class Establishment {
 
 	@EmbeddedId
 	private CnpjId cnpjId;
@@ -49,7 +49,7 @@ public class Estabilishment {
 	//@formatter:off
 	@JoinColumn(
 		columnDefinition = "int",
-		 foreignKey = @ForeignKey(name = "estabilishment_main_cnae_fk")
+		 foreignKey = @ForeignKey(name = "establishment_main_cnae_fk")
 	)
 	//@formatter:on
 	private Cnae mainCnaeFiscal;
@@ -57,8 +57,8 @@ public class Estabilishment {
 	@ManyToMany
 	//@formatter:off
 	@JoinTable(
-		inverseForeignKey = @ForeignKey(name = "cnae_estabilishment_fk"),
-		foreignKey = @ForeignKey(name = "estabilishment_cnae_composite_fk")
+		inverseForeignKey = @ForeignKey(name = "cnae_establishment_fk"),
+		foreignKey = @ForeignKey(name = "establishment_cnae_composite_fk")
 	)
 	//@formatter:on
 	private Set<Cnae> fiscalCenae;
@@ -91,7 +91,7 @@ public class Estabilishment {
 	//@formatter:off
 	@JoinColumn(
 		columnDefinition = "int2",
-		foreignKey = @ForeignKey(name = "estabilishment_municipality_fk")
+		foreignKey = @ForeignKey(name = "establishment_municipality_fk")
 	)
 	//@formatter:on
 	private Municipality cityCode;

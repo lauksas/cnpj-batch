@@ -35,7 +35,7 @@ public class CompaniesImportStepBuilder extends AbstractCNPJStepBuilder<CompanyC
 						(cnpj, close_down_reason_id, company_size, legal_nature_id, name, social_capital)
 						select :cnpj, :closeDownReasonId, :companySize, :legalNatureId, :name, :socialCapital
 						where exists
-							(select 1 from cnpj.estabilishment es where es.cnpj=:cnpj limit 1)
+							(select 1 from cnpj.establishment es where es.cnpj=:cnpj limit 1)
 					on conflict (cnpj)
 						do update set
 						cnpj = :cnpj,

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 import com.mux.cnpj.batch.data.entity.Cnae;
 import com.mux.cnpj.batch.data.entity.CnpjId;
 import com.mux.cnpj.batch.data.entity.Company;
-import com.mux.cnpj.batch.data.entity.Estabilishment;
+import com.mux.cnpj.batch.data.entity.Establishment;
 import com.mux.cnpj.batch.data.entity.Municipality;
 import com.mux.cnpj.batch.data.repository.CompaniesRepository;
 import com.mux.cnpj.batch.dto.EstablishmentCsv;
@@ -28,7 +28,7 @@ import com.mux.cnpj.batch.job.step.factory.AbstractCNPJStepBuilder;
 import com.mux.cnpj.config.ApplicationConfig;
 
 @Component
-public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<EstablishmentCsv, Estabilishment> {
+public class EstablishmentsImportStepBuilder extends AbstractCNPJStepBuilder<EstablishmentCsv, Establishment> {
 
 	private static final String ACTIVE_CODE = "02";
 
@@ -40,7 +40,7 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 	private Boolean importAllCities;
 	private Boolean importAllStates;
 
-	public EstabilishmentsImportStepBuilder(ApplicationConfig applicationConfig) {
+	public EstablishmentsImportStepBuilder(ApplicationConfig applicationConfig) {
 		cityCodesAllowed = applicationConfig.getCityCodesToImport();
 		stateCodesAllowed = applicationConfig.getStateCodesToImport();
 		importAllCities = cityCodesAllowed.contains("all");
@@ -48,12 +48,12 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 	}
 
 	@Override
-	public ItemProcessor<EstablishmentCsv, Estabilishment> getProcessor() {
+	public ItemProcessor<EstablishmentCsv, Establishment> getProcessor() {
 
-		return new ItemProcessor<EstablishmentCsv, Estabilishment>() {
+		return new ItemProcessor<EstablishmentCsv, Establishment>() {
 			@Override
 			@Nullable
-			public Estabilishment process(@NonNull EstablishmentCsv csv) throws Exception {
+			public Establishment process(@NonNull EstablishmentCsv csv) throws Exception {
 				String statusId = csv.getSituacaoCadastral_colF_6().trim();
 				String stateCode = nullIfEmpty(csv.getUf_colT_20());
 				String cityCode = csv.getCodMunicipio_colU_21().trim();
@@ -79,7 +79,7 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 
 				companiesRepository.save(Company.builder().cnpj(cnpj).build());
 
-				Estabilishment estabilishment = Estabilishment.builder()
+				Establishment establishment = Establishment.builder()
 						.cnpjId(
 								CnpjId.builder().cnpj(
 										cnpj)
@@ -117,7 +117,7 @@ public class EstabilishmentsImportStepBuilder extends AbstractCNPJStepBuilder<Es
 						.email(nullIfEmpty(csv.getCorreioEletronico_colAB_28()))
 						.build();
 
-				return estabilishment;
+				return establishment;
 			}
 
 			private boolean skipStatus(String statusId) {
