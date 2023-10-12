@@ -30,6 +30,7 @@ import com.mux.cnpj.batch.job.step.CountryDataFixTasklet;
 import com.mux.cnpj.batch.job.step.CountryImportStepBuilder;
 import com.mux.cnpj.batch.job.step.DownloadFilesTasklet;
 import com.mux.cnpj.batch.job.step.EstablishmentsImportStepBuilder;
+import com.mux.cnpj.batch.job.step.FullTextSearchIndexRefreshTasklet;
 import com.mux.cnpj.batch.job.step.LegalNatureImportStepBuilder;
 import com.mux.cnpj.batch.job.step.MunicipalityImportStepBuilder;
 import com.mux.cnpj.batch.job.step.PartnersImportStepBuilder;
@@ -70,6 +71,9 @@ public class CnpjImportJobConfig {
 	@Autowired
 	CnaePopulator cnaePopulator;
 
+	@Autowired
+	FullTextSearchIndexRefreshTasklet fullTextSearchIndexRefreshTasklet;
+
 	@Bean
 	public Job importCnpjJob(
 			JobRepository jobRepository,
@@ -100,6 +104,10 @@ public class CnpjImportJobConfig {
 		Step cnaePopulatorFixStep = new StepBuilder(cnaePopulator.getClass().getName(), jobRepository)
 				.tasklet(cnaePopulator, platformTransactionManager).build();
 
+		Step fullTextSearchIndexRefreshStep = new StepBuilder(fullTextSearchIndexRefreshTasklet.getClass().getName(),
+				jobRepository)
+				.tasklet(fullTextSearchIndexRefreshTasklet, platformTransactionManager).build();
+
 		Flow processFilesFLow = new FlowBuilder<Flow>("processFilesFlow")
 				.from(cnaeStepBuilder.build())
 				.next(reasonStepBuilder.build())
@@ -115,6 +123,7 @@ public class CnpjImportJobConfig {
 				.next(companyStepBuilder.build())
 				.next(simpleOptantImportStepBuilder.build())
 				.next(partnersImportStepBuilder.build())
+				.next(fullTextSearchIndexRefreshStep)
 				.build();
 
 		Job job = new JobBuilder("cnpjImportJobConfig", jobRepository)

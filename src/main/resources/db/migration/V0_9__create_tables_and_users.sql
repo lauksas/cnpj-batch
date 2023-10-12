@@ -212,6 +212,39 @@ CREATE TABLE simple_optant (
 	CONSTRAINT simple_optant_company_fk FOREIGN KEY (cnpj) REFERENCES company(cnpj)
 );
 
+-- indexes for faster searching
+
+--used on index
+CREATE OR REPLACE FUNCTION cnpj.f_concat_ws(text, VARIADIC text[])
+ RETURNS text
+ LANGUAGE sql
+ IMMUTABLE PARALLEL SAFE
+AS $function$SELECT array_to_string($2, $1)$function$
+;
+COMMIT;
+
+
+CREATE INDEX IF NOT EXISTS estabilishment_text_search_idx ON establishment USING gin (
+	to_tsvector(
+		'portuguese', 
+		f_concat_ws(
+			' ',
+			cnpj::text,
+			trade_name,
+			state_code,
+			street_type,
+			street,
+			street_number::text,
+			zip_code::text,
+			district 
+		)
+	)
+);
+COMMIT;
+
+CREATE INDEX IF NOT EXISTS estabilishment_cnpj_idx ON establishment (cnpj);
+COMMIT;
+
 CREATE OR REPLACE FUNCTION create_role_if_not_exists(rolename NAME) RETURNS TEXT AS
 $$
 BEGIN
@@ -239,4 +272,79 @@ COMMIT;
 ALTER ROLE cnpj_batch_readonly WITH LOGIN;
 GRANT USAGE ON SCHEMA cnpj TO cnpj_batch_readonly;
 GRANT SELECT ON ALL TABLES IN SCHEMA cnpj TO cnpj_batch_readonly;
+COMMIT;
+
+--DROP INDEX IF EXISTS cnpj_full_text_search_idx;
+--DROP MATERIALIZED VIEW IF exists cnpj_full_text_search;
+CREATE MATERIALIZED VIEW IF NOT EXISTS cnpj_full_text_search
+	(
+	cnpj,
+	headquarters_part,
+	check_digit,
+	cnpj_text
+	)
+	AS SELECT
+		e.cnpj,
+		e.headquarters_part,
+		e.check_digit,
+		to_tsvector('simple', 
+		LPAD(e.cnpj::text, 8, '0') || E' \n' ||
+		--start formatted cnpj
+		LPAD(e.cnpj::text, 8, '0') ||
+		'/' ||
+		LPAD(headquarters_part::text, 4, '0') ||
+		'-' ||
+		LPAD(check_digit::text, 2, '0') ||
+		E' \n' ||
+		--end formatted cnpj
+		coalesce(e.trade_name, '') || E' \n' ||
+		coalesce(c."name", '') || E' \n' ||
+		--start address
+		coalesce(e.street_type, '') || ' ' ||
+		coalesce(e.street, '') || ' ' || 
+		coalesce(e.street_number::text, '') || ' ' ||
+		coalesce(e.district, '') || ' ' ||
+		coalesce(m."name", '') || ' ' || 
+		coalesce(e.state_code, '') || ' ' || 
+		coalesce(e.zip_code::text, '') || ' ' ||
+		--end address 
+		coalesce(cnae.description, '') || E' \n' ||
+		--scondary cnaes separated by new line
+		coalesce(string_agg(
+			DISTINCT  
+			secondary_cnae.description,
+			E' \n'
+		), '') || E' \n' ||
+		--partners separated by new line
+	 	coalesce(string_agg(
+	 		DISTINCT
+			p."name",
+			E' \n'
+		), '')
+		)
+		AS cnpj_text
+	FROM establishment e
+	LEFT JOIN company c ON c.cnpj = e.cnpj
+	LEFT JOIN cnae cnae ON cnae.id = e.main_cnae_fiscal_id
+	LEFT JOIN municipality m ON m.id = e.city_code_id
+	LEFT JOIN establishment_cnae ec ON ec.establishment_cnpj = e.cnpj AND ec.establishment_headquarters_part = e.headquarters_part AND ec.establishment_check_digit = e.check_digit
+	LEFT JOIN cnae secondary_cnae ON secondary_cnae.id = ec.fiscal_cenae_id
+	LEFT JOIN partner p ON c.cnpj = p.cnpj 
+	GROUP BY 
+		e.cnpj,
+		e.headquarters_part,
+		e.check_digit,
+		coalesce(c."name", ''),
+		coalesce(cnae.description, ''),
+		coalesce(m."name", ''),
+		coalesce(e.trade_name, '')
+	WITH NO DATA;
+CREATE UNIQUE INDEX ON cnpj_full_text_search (check_digit, cnpj, headquarters_part);
+COMMIT;
+
+CREATE INDEX IF NOT EXISTS cnpj_full_text_search_idx ON cnpj_full_text_search
+	USING gin (cnpj_text);
+GRANT SELECT ON cnpj_full_text_search to cnpj_batch_readonly;
+GRANT SELECT ON cnpj_full_text_search to cnpj_batch_readwrite;
+ALTER DEFAULT PRIVILEGES IN SCHEMA cnpj GRANT SELECT ON TABLES TO cnpj_batch_readonly;
 COMMIT;
