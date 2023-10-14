@@ -345,6 +345,11 @@ COMMIT;
 CREATE INDEX IF NOT EXISTS cnpj_full_text_search_idx ON cnpj_full_text_search
 	USING gin (cnpj_text);
 GRANT SELECT ON cnpj_full_text_search to cnpj_batch_readonly;
-GRANT SELECT ON cnpj_full_text_search to cnpj_batch_readwrite;
+
+CREATE ROLE refresh_materialized_views;
+GRANT refresh_materialized_views TO cnpj_batch_readwrite;
+ALTER TABLE cnpj_full_text_search OWNER TO refresh_materialized_views;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA cnpj TO refresh_materialized_views;
+GRANT USAGE ON SCHEMA cnpj TO refresh_materialized_views;
 ALTER DEFAULT PRIVILEGES IN SCHEMA cnpj GRANT SELECT ON TABLES TO cnpj_batch_readonly;
 COMMIT;
