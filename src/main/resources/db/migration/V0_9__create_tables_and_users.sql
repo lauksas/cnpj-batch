@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS legal_nature (
 
 -- DROP TABLE municipality;
 
-CREATE TABLE municipality (
+CREATE TABLE IF NOT EXISTS municipality (
 	id int4 NOT NULL,
 	"name" text NULL,
 	CONSTRAINT municipality_pkey PRIMARY KEY (id)
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS person_type (
 
 -- DROP TABLE reason;
 
-CREATE TABLE reason (
+CREATE TABLE IF NOT EXISTS reason (
 	id int4 NOT NULL,
 	description text NULL,
 	CONSTRAINT reason_pkey PRIMARY KEY (id)
@@ -204,7 +204,7 @@ CREATE TABLE IF NOT EXISTS partner (
 
 -- DROP TABLE simple_optant;
 
-CREATE TABLE simple_optant (
+CREATE TABLE IF NOT EXISTS simple_optant (
 	cnpj int4 NOT NULL,
 	mei_optant bool NULL,
 	simple_optant bool NULL,
@@ -346,7 +346,9 @@ CREATE INDEX IF NOT EXISTS cnpj_full_text_search_idx ON cnpj_full_text_search
 	USING gin (cnpj_text);
 GRANT SELECT ON cnpj_full_text_search to cnpj_batch_readonly;
 
-CREATE ROLE refresh_materialized_views;
+COMMIT;
+SELECT create_role_if_not_exists('refresh_materialized_views');
+COMMIT;
 GRANT refresh_materialized_views TO cnpj_batch_readwrite;
 ALTER TABLE cnpj_full_text_search OWNER TO refresh_materialized_views;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA cnpj TO refresh_materialized_views;
