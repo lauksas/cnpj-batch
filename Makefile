@@ -21,6 +21,9 @@ ifneq ($(REGISTRY_URL),)
 	IMAGE_URL = $(REGISTRY_URL)/$(IMAGE_REPO):$(IMAGE_TAG)
 endif
 
+namespace:
+	kubectl create namespace $(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
+
 image:
 	podman build -t $(IMAGE_URL) .
 
