@@ -224,24 +224,6 @@ AS $function$SELECT array_to_string($2, $1)$function$
 COMMIT;
 
 
-CREATE INDEX IF NOT EXISTS estabilishment_text_search_idx ON establishment USING gin (
-	to_tsvector(
-		'portuguese', 
-		f_concat_ws(
-			' ',
-			cnpj::text,
-			trade_name,
-			state_code,
-			street_type,
-			street,
-			street_number::text,
-			zip_code::text,
-			district 
-		)
-	)
-);
-COMMIT;
-
 CREATE INDEX IF NOT EXISTS estabilishment_cnpj_idx ON establishment (cnpj);
 COMMIT;
 
@@ -274,6 +256,19 @@ GRANT USAGE ON SCHEMA cnpj TO cnpj_batch_readonly;
 GRANT SELECT ON ALL TABLES IN SCHEMA cnpj TO cnpj_batch_readonly;
 COMMIT;
 
+CCREATE extension if not exists unaccent;
+DO
+$$BEGIN
+   CREATE TEXT SEARCH configuration pt_unaccent ( COPY = simple );
+EXCEPTION
+   WHEN unique_violation THEN
+      NULL;  -- ignore error
+END;$$;
+
+ALTER TEXT SEARCH CONFIGURATION pt_unaccent
+  ALTER MAPPING FOR hword, hword_part, word
+  WITH unaccent, simple;
+
 --DROP INDEX IF EXISTS cnpj_full_text_search_idx;
 --DROP MATERIALIZED VIEW IF exists cnpj_full_text_search;
 CREATE MATERIALIZED VIEW IF NOT EXISTS cnpj_full_text_search
@@ -287,40 +282,58 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS cnpj_full_text_search
 		e.cnpj,
 		e.headquarters_part,
 		e.check_digit,
-		to_tsvector('simple', 
-		LPAD(e.cnpj::text, 8, '0') || E' \n' ||
-		--start formatted cnpj
-		LPAD(e.cnpj::text, 8, '0') ||
-		'/' ||
-		LPAD(headquarters_part::text, 4, '0') ||
-		'-' ||
-		LPAD(check_digit::text, 2, '0') ||
-		E' \n' ||
-		--end formatted cnpj
-		coalesce(e.trade_name, '') || E' \n' ||
-		coalesce(c."name", '') || E' \n' ||
-		--start address
-		coalesce(e.street_type, '') || ' ' ||
-		coalesce(e.street, '') || ' ' || 
-		coalesce(e.street_number::text, '') || ' ' ||
-		coalesce(e.district, '') || ' ' ||
-		coalesce(m."name", '') || ' ' || 
-		coalesce(e.state_code, '') || ' ' || 
-		coalesce(e.zip_code::text, '') || ' ' ||
-		--end address 
-		coalesce(cnae.description, '') || E' \n' ||
-		--scondary cnaes separated by new line
-		coalesce(string_agg(
-			DISTINCT  
-			secondary_cnae.description,
-			E' \n'
-		), '') || E' \n' ||
-		--partners separated by new line
-	 	coalesce(string_agg(
-	 		DISTINCT
-			p."name",
-			E' \n'
-		), '')
+		to_tsvector('pt_unaccent', 
+			LPAD(e.cnpj::text, 8, '0') || E' \n' ||
+			--start formatted cnpj
+			LPAD(e.cnpj::text, 8, '0') ||
+			LPAD(headquarters_part::text, 4, '0') ||
+			LPAD(check_digit::text, 2, '0') ||
+			E' \n' ||
+			--end formatted cnpj
+			coalesce(e.trade_name, '') || E' \n' ||
+			coalesce(c."name", '') || E' \n' ||
+			--start address
+			coalesce(e.street_type, '') || ' ' ||
+			coalesce(e.street, '') || ' ' || 
+			coalesce(e.street_number::text, '') || ' ' ||
+			coalesce(e.district, '') || ' ' ||
+			coalesce(m."name", '') || ' ' || 
+			coalesce(e.state_code, '') || ' ' || 
+			coalesce(lpad(e.zip_code::text, 8, '0')::text, '') || ' ' ||
+			--end address 
+			coalesce(cnae.description, '') || E' \n' ||
+			--scondary cnaes separated by new line
+			coalesce(string_agg(
+				DISTINCT  
+				secondary_cnae.description,
+				E' \n'
+			), '') || E' \n' ||
+			--partners separated by new line
+		 	coalesce(string_agg(
+		 		DISTINCT
+				p."name",
+				E' \n'
+			), '') || E' \n' ||
+			--adding all partners
+			coalesce(string_agg(
+		 		DISTINCT
+				(
+					select
+					case when length(p.masked_cpf_or_cnpj::text) > 6
+					then
+						left(lpad(p.masked_cpf_or_cnpj::text, 14, '0')::text, 8)
+						|| E' \n' ||
+						left(lpad(p.masked_cpf_or_cnpj::text, 14, '0')::text, 8)
+						||
+						substring(p.masked_cpf_or_cnpj::text, length(p.masked_cpf_or_cnpj::text) -5 ,4)
+						||
+						right(p.masked_cpf_or_cnpj::text,
+						2)
+					else ''
+					end
+				),
+				E' \n'
+			), '')
 		)
 		AS cnpj_text
 	FROM establishment e
@@ -329,7 +342,7 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS cnpj_full_text_search
 	LEFT JOIN municipality m ON m.id = e.city_code_id
 	LEFT JOIN establishment_cnae ec ON ec.establishment_cnpj = e.cnpj AND ec.establishment_headquarters_part = e.headquarters_part AND ec.establishment_check_digit = e.check_digit
 	LEFT JOIN cnae secondary_cnae ON secondary_cnae.id = ec.fiscal_cenae_id
-	LEFT JOIN partner p ON c.cnpj = p.cnpj 
+	LEFT JOIN partner p ON c.cnpj = p.cnpj
 	GROUP BY 
 		e.cnpj,
 		e.headquarters_part,
