@@ -299,7 +299,8 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS cnpj_full_text_search
 			coalesce(e.district, '') || ' ' ||
 			coalesce(m."name", '') || ' ' || 
 			coalesce(e.state_code, '') || ' ' || 
-			coalesce(lpad(e.zip_code::text, 8, '0')::text, '') || ' ' ||
+			coalesce(lpad(e.zip_code::text, 8, '0')::text, '') 
+			|| E' \n' ||
 			--end address 
 			coalesce(cnae.description, '') || E' \n' ||
 			--scondary cnaes separated by new line
