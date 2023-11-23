@@ -2,6 +2,8 @@
 --CREATE DATABASE cnpj;
 CREATE SCHEMA IF NOT EXISTS cnpj;
 
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 --ALTER USER cnpj_batch WITH PASSWORD 'carpe-diem';
 -- cnpj.cnae definition
 
