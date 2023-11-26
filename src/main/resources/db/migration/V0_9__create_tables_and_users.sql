@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS establishment (
 	CONSTRAINT establishment_municipality_fk FOREIGN KEY (city_code_id) REFERENCES municipality(id),
 	CONSTRAINT establishment_company_fk FOREIGN KEY (cnpj) REFERENCES company(cnpj)
 );
-CREATE INDEX cnpj_index ON cnpj.establishment USING btree (cnpj);
+CREATE INDEX IF NOT EXISTS cnpj_index ON cnpj.establishment USING btree (cnpj);
 
 
 -- cnpj.establishment_cnae definition
@@ -258,7 +258,7 @@ GRANT USAGE ON SCHEMA cnpj TO cnpj_batch_readonly;
 GRANT SELECT ON ALL TABLES IN SCHEMA cnpj TO cnpj_batch_readonly;
 COMMIT;
 
-CCREATE extension if not exists unaccent;
+CREATE extension if not exists unaccent;
 DO
 $$BEGIN
    CREATE TEXT SEARCH configuration pt_unaccent ( COPY = simple );

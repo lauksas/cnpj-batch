@@ -14,6 +14,8 @@ NAMESPACE = mux
 PODMAN_TLS = false
 DEPLOYMENT_NAME = $(NAME)
 CHART_PATH = ./helm/$(NAME)
+ENV = local
+FLYWAY_CONFIG = flyway-$(ENV).conf
 
 IMAGE_URL = $(IMAGE_REPO):$(IMAGE_TAG)
 
@@ -62,3 +64,17 @@ run-job: install delete-job
 
 delete-job:
 	kubectl -n $(NAMESPACE) delete jobs.batch $(NAME)-import || true
+
+flyway-info:
+	cat $(FLYWAY_CONFIG); echo; \
+	read -p "check the $(FLYWAY_CONFIG) file contents and press any key to continue" && \
+	read -p "Enter db username:" db_username; echo; \
+	read -s -p "Enter db password:" db_password; echo; \
+	mvn flyway:info -Dflyway.user=$$db_username -Dflyway.password=$$db_password -Dflyway.configFiles=$(FLYWAY_CONFIG)
+
+flyway-migrate:
+	cat $(FLYWAY_CONFIG); echo; \
+	read -p "check the $(FLYWAY_CONFIG) file contents and press any key to continue" && \
+	read -p "Enter db username:" db_username; \
+	read -s -p "Enter db password:" db_password; \
+	mvn flyway:migrate -Dflyway.user=$$db_username -Dflyway.password=$$db_password -Dflyway.configFiles=$(FLYWAY_CONFIG)
