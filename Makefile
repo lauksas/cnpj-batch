@@ -6,7 +6,7 @@
 
 NAME = cnpj-batch
 
-REGISTRY_URL = 
+REGISTRY_URL = registry.cube.local:5000
 IMAGE_REPO = $(NAME)
 IMAGE_TAG = latest
 SECRET_NAME = $(NAME)-secret
