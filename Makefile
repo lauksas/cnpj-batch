@@ -47,7 +47,7 @@ secret:
 pvc:
 	kubectl apply -n $(NAMESPACE) -f helm/pvc.yaml
 
-install: pvc
+install:
 	helm upgrade --install --create-namespace -n $(NAMESPACE) $(DEPLOYMENT_NAME) $(CHART_PATH) --values=$(CHART_PATH)/values.yaml
 
 dry-run:
@@ -78,3 +78,7 @@ flyway-migrate:
 	read -p "Enter db username:" db_username; \
 	read -s -p "Enter db password:" db_password; \
 	mvn flyway:migrate -Dflyway.user=$$db_username -Dflyway.password=$$db_password -Dflyway.configFiles=$(FLYWAY_CONFIG)
+
+prune-all: image-prune delete-job delete
+
+install-all: namespace secret pvc push install
