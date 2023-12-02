@@ -51,10 +51,10 @@ install:
 	helm upgrade --install --create-namespace -n $(NAMESPACE) $(DEPLOYMENT_NAME) $(CHART_PATH) --values=$(CHART_PATH)/values-$(ENV).yaml
 
 dry-run:
-	helm upgrade --install --create-namespace -n $(NAMESPACE) $(DEPLOYMENT_NAME) $(CHART_PATH) --values=$(CHART_PATH)/values.yaml --dry-run --debug
+	helm upgrade --install --create-namespace -n $(NAMESPACE) $(DEPLOYMENT_NAME) $(CHART_PATH) --values=$(CHART_PATH)/values-$(ENV).yaml --dry-run --debug
 
 lint:
-	helm lint $(CHART_PATH)
+	helm lint $(CHART_PATH) --values=$(CHART_PATH)/values-$(ENV).yaml
 
 delete:
 	helm delete -n $(NAMESPACE) $(DEPLOYMENT_NAME)
