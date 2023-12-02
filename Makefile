@@ -14,7 +14,7 @@ NAMESPACE = mux
 PODMAN_TLS = false
 DEPLOYMENT_NAME = $(NAME)
 CHART_PATH = ./helm/$(NAME)
-ENV = local
+ENV = dev
 FLYWAY_CONFIG = flyway-$(ENV).conf
 
 IMAGE_URL = $(IMAGE_REPO):$(IMAGE_TAG)
@@ -48,7 +48,7 @@ pvc:
 	kubectl apply -n $(NAMESPACE) -f helm/pvc.yaml
 
 install:
-	helm upgrade --install --create-namespace -n $(NAMESPACE) $(DEPLOYMENT_NAME) $(CHART_PATH) --values=$(CHART_PATH)/values.yaml
+	helm upgrade --install --create-namespace -n $(NAMESPACE) $(DEPLOYMENT_NAME) $(CHART_PATH) --values=$(CHART_PATH)/values-$(ENV).yaml
 
 dry-run:
 	helm upgrade --install --create-namespace -n $(NAMESPACE) $(DEPLOYMENT_NAME) $(CHART_PATH) --values=$(CHART_PATH)/values.yaml --dry-run --debug

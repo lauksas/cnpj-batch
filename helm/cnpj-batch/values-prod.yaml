@@ -1,0 +1,10 @@
+image:
+  repository: registry.cube.local:5000/cnpj-batch
+  tag: v0.9
+database:
+  host: primary-postgres-postgresql.postgres.svc.cluster.local
+  port: 5432
+  name: mux
+  properties: currentSchema=cnpj&sslmode=require&search_path=cnpj&currentSchema=cnpj
+schedule: "0 0 * * *"
+suspend: "false"
