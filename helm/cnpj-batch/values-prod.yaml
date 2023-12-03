@@ -6,5 +6,5 @@ database:
   port: 5432
   name: mux
   properties: currentSchema=cnpj&sslmode=require&search_path=cnpj&currentSchema=cnpj
-schedule: "0 0 * * *"
+schedule: "0 2 * * *"
 suspend: "false"
