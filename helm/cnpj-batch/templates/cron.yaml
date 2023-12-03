@@ -59,16 +59,6 @@ spec:
                   value: "10000"
                 - name: CNPJ_BATCH_CSV_LOCATION
                   value: /data/import
-                - name: CNPJ_BATCH_FLYWAY_USERNAME
-                  valueFrom:
-                    secretKeyRef:
-                      name: cnpj-batch-secret
-                      key: CNPJ_BATCH_FLYWAY_USERNAME
-                - name: CNPJ_BATCH_FLYWAY_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: cnpj-batch-secret
-                      key: CNPJ_BATCH_FLYWAY_PASSWORD
           restartPolicy: OnFailure
           volumes:
             - name: cnpj-batch-cnpj-volume
