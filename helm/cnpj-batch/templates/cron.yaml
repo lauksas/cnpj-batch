@@ -38,7 +38,7 @@ spec:
                 - name: CNPJ_BATCH_CSV_STATE_CODES
                   value: "all"
                 - name: CNPJ_BATCH_DATASOURCE_URL
-                  value: jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}?{{ .Values.database.properties }}
+                  value: "jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}?{{ .Values.database.properties }}"
                 - name: CNPJ_BATCH_DATASOURCE_USERNAME
                   valueFrom:
                     secretKeyRef:
