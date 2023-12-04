@@ -29,6 +29,10 @@ ifeq ($(ENV),prod)
 	DB_HOST = grupomux.com.br
 endif
 
+ifeq ($(ENV),local)
+	DB_HOST = localhost
+endif
+
 namespace:
 	kubectl create namespace $(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
 
