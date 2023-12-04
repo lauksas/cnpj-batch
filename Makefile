@@ -16,11 +16,17 @@ DEPLOYMENT_NAME = $(NAME)
 CHART_PATH = ./helm/$(NAME)
 ENV = dev
 FLYWAY_CONFIG = flyway-$(ENV).conf
+DB_HOST = 192.168.1.250
+DB_USER = cnpj_batch_readwrite
 
 IMAGE_URL = $(IMAGE_REPO):$(IMAGE_TAG)
 
 ifneq ($(REGISTRY_URL),)
 	IMAGE_URL = $(REGISTRY_URL)/$(IMAGE_REPO):$(IMAGE_TAG)
+endif
+
+ifeq ($(ENV),prod)
+	DB_HOST = grupomux.com.br
 endif
 
 namespace:
@@ -41,10 +47,21 @@ push: image
 image-prune:
 	podman rmi $(IMAGE_URL); skopeo delete --tls-verify=$(PODMAN_TLS) docker://$(IMAGE_URL)
 
-secret:
-	read -s -p "Enter db password for cnpj_batch_readwrite:" cnpj_batch_readwrite_password; echo; \
+reset-db-password:
+	echo "changing $(DB_USER) password"; \
+	echo; \
+	read -s -p "Enter current postgres (admin) password:" PGPASSWORD; \
+	echo; \
+	read -s -p "Enter new $(DB_USER) password:" NEW_PASSWORD; \
+	echo; \
+	echo; \
+	export PGPASSWORD=$$PGPASSWORD; \
+	psql -h $(DB_HOST) -p 5432 -U postgres -d postgres -c "ALTER USER $(DB_USER) WITH PASSWORD '$$NEW_PASSWORD';";
+
+secret: reset-db-password
+	read -s -p "Enter db password for $(DB_USER):" cnpj_batch_readwrite_password; echo; \
 	kubectl create secret -n $(NAMESPACE) generic $(SECRET_NAME) \
-		--from-literal=CNPJ_BATCH_DATASOURCE_USERNAME=cnpj_batch_readwrite \
+		--from-literal=CNPJ_BATCH_DATASOURCE_USERNAME=$(DB_USER) \
 		--from-literal=CNPJ_BATCH_DATASOURCE_PASSWORD=$$cnpj_batch_readwrite_password \
 		--dry-run=client -o yaml | kubectl apply -f -
 
