@@ -42,7 +42,11 @@ image-prune:
 	podman rmi $(IMAGE_URL); skopeo delete --tls-verify=$(PODMAN_TLS) docker://$(IMAGE_URL)
 
 secret:
-	read -p "It will create the secret based on secrets.env, check the file and press any key to continue" && kubectl create secret generic $(SECRET_NAME) --save-config --dry-run=client --from-env-file=secrets.env -n $(NAMESPACE) -o yaml | kubectl apply -f -
+	read -s -p "Enter db password for cnpj_batch_readwrite:" cnpj_batch_readwrite_password; echo; \
+	kubectl create secret -n $(NAMESPACE) generic $(SECRET_NAME) \
+		--from-literal=CNPJ_BATCH_DATASOURCE_USERNAME=cnpj_batch_readwrite \
+		--from-literal=CNPJ_BATCH_DATASOURCE_PASSWORD=$$cnpj_batch_readwrite_password \
+		--dry-run=client -o yaml | kubectl apply -f -
 
 pvc:
 	kubectl apply -n $(NAMESPACE) -f helm/pvc.yaml
